@@ -1,0 +1,185 @@
+.rec-cars {
+  background: #fff;
+  color: #111;
+  padding: 100px 0 80px;
+}
+
+.rec-cars__heading {
+  text-align: center;
+  font-size: clamp(30px, 3.2vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  margin-bottom: 50px;
+}
+
+/* ---- carousel wrapper ---- */
+.rec-cars__carousel {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.rec-cars__arrow {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: 2;
+}
+
+.rec-cars__arrow:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: default;
+}
+
+.rec-cars__arrow:hover:not(:disabled) {
+  color: #000;
+  border-color: #999;
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ---- track ---- */
+.rec-cars__track-wrapper {
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.rec-cars__track {
+  display: flex;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- card slot ---- */
+.rec-cars__card {
+  flex: 0 0 25%;
+  min-width: 0;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* Make the catalog-card fill its slot */
+.rec-cars__card .catalog-card--grid {
+  height: 100%;
+}
+
+/* ---- bottom bar ---- */
+.rec-cars__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 60px 0;
+  gap: 40px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.rec-cars__progress {
+  flex: 1;
+  height: 2px;
+  background: #e5e5e5;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.rec-cars__progress-bar {
+  height: 100%;
+  background: #111;
+  border-radius: 1px;
+  transition: width 0.4s ease;
+}
+
+.rec-cars__all-btn {
+  flex-shrink: 0;
+  padding: 14px 36px;
+  background: #111;
+  color: #fff;
+  border: none;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+}
+
+.rec-cars__all-btn:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 1024px) {
+  .rec-cars__card {
+    flex: 0 0 33.333%;
+  }
+}
+
+@media (max-width: 768px) {
+  .rec-cars {
+    padding: 60px 0 60px;
+  }
+
+  .rec-cars__heading {
+    font-size: 26px;
+    margin-bottom: 28px;
+    padding: 0 16px;
+  }
+
+  .rec-cars__carousel {
+    padding: 0 8px;
+  }
+
+  .rec-cars__arrow {
+    display: none;
+  }
+
+  .rec-cars__track-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .rec-cars__track-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rec-cars__track {
+    transition: none;
+  }
+
+  .rec-cars__card {
+    flex: 0 0 78%;
+    padding: 0 6px;
+  }
+
+  .rec-cars__bottom {
+    padding: 24px 16px 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .rec-cars__all-btn {
+    text-align: center;
+    padding: 14px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rec-cars__card {
+    flex: 0 0 85%;
+  }
+}

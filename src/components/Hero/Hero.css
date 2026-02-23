@@ -1,0 +1,382 @@
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+/* Background image */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero__bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: heroKenBurns 10s ease-in-out infinite alternate;
+}
+
+@keyframes heroKenBurns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.04); }
+}
+
+.hero__bg-image--visible {
+  opacity: 1;
+}
+
+.hero__bg-image--hidden {
+  opacity: 0;
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.35) 60%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+/* Content */
+.hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin-left: 26%;
+  padding: 0;
+  animation: heroFadeUp 1s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero__tagline {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 16px;
+}
+
+.hero__accent-line {
+  width: 48px;
+  height: 1.5px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.7), rgba(255,255,255,0));
+  margin-bottom: 28px;
+}
+
+.hero__title {
+  font-size: clamp(42px, 5vw, 68px);
+  font-weight: 300;
+  line-height: 1.1;
+  color: #fff;
+  margin: 0 0 12px;
+  font-style: normal;
+  letter-spacing: -1px;
+}
+
+.hero__title-highlight {
+  font-weight: 600;
+  font-style: italic;
+  background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero__subtitle {
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 20px 0 40px;
+  max-width: 400px;
+  font-weight: 300;
+  letter-spacing: 0.2px;
+}
+
+/* Buttons */
+.hero__buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hero__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 48px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: none;
+  border: none;
+  border-radius: 0;
+  transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero__btn--filled {
+  border: 2px solid #fff;
+  background: #fff;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.hero__btn--filled:hover {
+  background: rgba(255, 255, 255, 0.92);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.hero__btn--outline {
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #fff;
+  font-weight: 500;
+}
+
+.hero__btn--outline:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Scroll indicator */
+.hero__scroll-indicator {
+  position: absolute;
+  bottom: 36px;
+  left: 26%;
+  width: 22px;
+  height: 36px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 11px;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.hero__scroll-dot {
+  width: 3px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 2px;
+  animation: scrollBounce 2s infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(12px);
+    opacity: 0.3;
+  }
+}
+
+/* ── Mobile photo (hidden on desktop) ── */
+.hero__photo {
+  display: none;
+}
+
+.hero__progress {
+  display: none;
+}
+
+/* ══════════════════ MOBILE ══════════════════ */
+@media (max-width: 768px) {
+  .hero {
+    height: auto;
+    min-height: auto;
+    background: #111;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-top: 56px;
+  }
+
+  /* Hide the fullscreen background image on mobile */
+  .hero__bg {
+    display: none;
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    animation: none;
+  }
+
+  .hero__accent-line {
+    display: none;
+  }
+
+  .hero__title {
+    padding: 0 20px;
+    margin-top: 80px;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+
+  .hero__title br {
+    display: none;
+  }
+
+  .hero__title-highlight {
+    font-weight: 800;
+    font-style: normal;
+    display: inline;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: #fff;
+  }
+
+  .hero__subtitle {
+    padding: 0 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.55);
+    margin: 12px 0 0;
+    max-width: none;
+    font-weight: 400;
+  }
+
+  /* ── Mobile standalone car photo ── */
+  .hero__photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0 0;
+  }
+
+  .hero__photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .hero__photo-img--visible {
+    opacity: 1;
+  }
+
+  .hero__photo-img--hidden {
+    opacity: 0;
+  }
+
+  /* ── Slide progress bar ── */
+  .hero__progress {
+    display: flex;
+    gap: 4px;
+    padding: 12px 20px 24px;
+    background: #111;
+  }
+
+  .hero__progress-segment {
+    flex: 1;
+    height: 2px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 1px;
+    transition: background 0.3s;
+  }
+
+  .hero__progress-segment--active {
+    background: #fff;
+  }
+
+  /* Buttons at bottom */
+  .hero__buttons {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 20px 32px;
+    flex-shrink: 0;
+  }
+
+  .hero__btn {
+    width: 100%;
+    padding: 18px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border-radius: 0;
+    justify-content: center;
+  }
+
+  .hero__btn--filled {
+    background: transparent;
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.18);
+  }
+
+  .hero__btn--filled:hover,
+  .hero__btn--filled:active {
+    background: rgba(255,255,255,0.06);
+    transform: none;
+    box-shadow: none;
+  }
+
+  .hero__btn--outline {
+    border: 1.5px solid rgba(255,255,255,0.18);
+    background: transparent;
+    color: #fff;
+  }
+
+  .hero__btn--outline:hover,
+  .hero__btn--outline:active {
+    background: rgba(255,255,255,0.06);
+    transform: none;
+  }
+
+  .hero__scroll-indicator {
+    display: none;
+  }
+}
+
+/* ── Small phones ── */
+@media (max-width: 390px) {
+  .hero__title {
+    font-size: 28px;
+    margin-top: 20px;
+  }
+
+  .hero__subtitle {
+    font-size: 13px;
+  }
+}
