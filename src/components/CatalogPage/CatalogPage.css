@@ -489,6 +489,17 @@
   background: none;
   pointer-events: none;
   outline: none;
+  z-index: 2;
+}
+
+/* Second (max) input sits higher so its thumb is on top */
+.dual-range__input:last-of-type {
+  z-index: 3;
+}
+
+/* Ensure the track doesn't capture pointer events */
+.dual-range__input::-webkit-slider-runnable-track {
+  pointer-events: none;
 }
 
 .dual-range__input::-webkit-slider-thumb {
@@ -502,7 +513,7 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.15);
   pointer-events: auto;
   position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 
 .dual-range__input::-moz-range-thumb {
@@ -515,11 +526,12 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.15);
   pointer-events: auto;
   position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 
 .dual-range__input::-moz-range-track {
   background: transparent;
+  pointer-events: none;
 }
 
 .catalog-filter-block__range-inputs {
