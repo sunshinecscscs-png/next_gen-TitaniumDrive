@@ -56,27 +56,27 @@ router.get('/', async (req, res) => {
     }
     if (req.query.price_min) {
       params.push(Number(req.query.price_min));
-      conditions.push(`price >= $${idx++}`);
+      conditions.push(`(price IS NULL OR price >= $${idx++})`);
     }
     if (req.query.price_max) {
       params.push(Number(req.query.price_max));
-      conditions.push(`price <= $${idx++}`);
+      conditions.push(`(price IS NULL OR price <= $${idx++})`);
     }
     if (req.query.year_min) {
       params.push(Number(req.query.year_min));
-      conditions.push(`year >= $${idx++}`);
+      conditions.push(`(year IS NULL OR year >= $${idx++})`);
     }
     if (req.query.year_max) {
       params.push(Number(req.query.year_max));
-      conditions.push(`year <= $${idx++}`);
+      conditions.push(`(year IS NULL OR year <= $${idx++})`);
     }
     if (req.query.mileage_min) {
       params.push(Number(req.query.mileage_min));
-      conditions.push(`mileage >= $${idx++}`);
+      conditions.push(`(mileage IS NULL OR mileage >= $${idx++})`);
     }
     if (req.query.mileage_max) {
       params.push(Number(req.query.mileage_max));
-      conditions.push(`mileage <= $${idx++}`);
+      conditions.push(`(mileage IS NULL OR mileage <= $${idx++})`);
     }
     if (req.query.search) {
       params.push(`%${req.query.search}%`);
