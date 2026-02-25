@@ -180,9 +180,69 @@ const CAR_FIELDS = [
   { key: 'transmission', label: 'Коробка передач', placeholder: 'Автоматическая, 6 ст.' },
   { key: 'engine', label: 'Двигатель', placeholder: '1373 см³/1.4 л' },
   { key: 'power', label: 'Мощность', placeholder: '103кВт, 140 л.с.' },
-  { key: 'color_name', label: 'Цвет (название)', placeholder: 'Серебряный металлик' },
-  { key: 'color_hex', label: 'Цвет (HEX)', placeholder: '#c0c0c0' },
+  { key: 'color_name', label: 'Цвет (название)', placeholder: 'Серебряный металлик', colorName: true },
+  { key: 'color_hex', label: 'Цвет', colorPicker: true },
   { key: 'description', label: 'Описание', placeholder: 'Описание автомобиля...', textarea: true },
+];
+
+const COLOR_PALETTE = [
+  // Белые / светлые
+  { name: 'Белый', hex: '#ffffff' },
+  { name: 'Белый перламутр', hex: '#f8f8f0' },
+  { name: 'Слоновая кость', hex: '#fffff0' },
+  { name: 'Кремовый', hex: '#fffdd0' },
+  { name: 'Бежевый', hex: '#f5deb3' },
+  { name: 'Песочный', hex: '#e6d5a8' },
+  // Серые
+  { name: 'Серебряный', hex: '#c0c0c0' },
+  { name: 'Светло-серый', hex: '#d3d3d3' },
+  { name: 'Серый', hex: '#808080' },
+  { name: 'Графитовый', hex: '#474747' },
+  { name: 'Тёмно-серый', hex: '#333333' },
+  { name: 'Мокрый асфальт', hex: '#505050' },
+  // Чёрные
+  { name: 'Чёрный', hex: '#000000' },
+  { name: 'Чёрный металлик', hex: '#1a1a2e' },
+  // Красные
+  { name: 'Красный', hex: '#cc0000' },
+  { name: 'Ярко-красный', hex: '#ff0000' },
+  { name: 'Тёмно-красный', hex: '#8b0000' },
+  { name: 'Бордовый', hex: '#800020' },
+  { name: 'Вишнёвый', hex: '#5c0029' },
+  { name: 'Малиновый', hex: '#dc143c' },
+  // Оранжевые / жёлтые
+  { name: 'Оранжевый', hex: '#ff6600' },
+  { name: 'Медный', hex: '#b87333' },
+  { name: 'Жёлтый', hex: '#ffd700' },
+  { name: 'Ярко-жёлтый', hex: '#ffea00' },
+  { name: 'Лимонный', hex: '#fff44f' },
+  { name: 'Золотой', hex: '#daa520' },
+  // Зелёные
+  { name: 'Салатовый', hex: '#7cfc00' },
+  { name: 'Зелёный', hex: '#228b22' },
+  { name: 'Изумрудный', hex: '#50c878' },
+  { name: 'Тёмно-зелёный', hex: '#006400' },
+  { name: 'Хаки', hex: '#6b8e23' },
+  { name: 'Оливковый', hex: '#556b2f' },
+  // Голубые / синие
+  { name: 'Голубой', hex: '#87ceeb' },
+  { name: 'Бирюзовый', hex: '#40e0d0' },
+  { name: 'Синий', hex: '#0033cc' },
+  { name: 'Ярко-синий', hex: '#0066ff' },
+  { name: 'Тёмно-синий', hex: '#001a66' },
+  { name: 'Индиго', hex: '#2e0854' },
+  // Фиолетовые / розовые
+  { name: 'Фиолетовый', hex: '#6a0dad' },
+  { name: 'Сиреневый', hex: '#9370db' },
+  { name: 'Пурпурный', hex: '#800080' },
+  { name: 'Розовый', hex: '#ff69b4' },
+  { name: 'Коралловый', hex: '#ff7f50' },
+  // Коричневые
+  { name: 'Светло-коричневый', hex: '#c4a777' },
+  { name: 'Коричневый', hex: '#8b4513' },
+  { name: 'Шоколадный', hex: '#5c3317' },
+  { name: 'Тёмно-коричневый', hex: '#3b1e08' },
+  { name: 'Бронзовый', hex: '#cd7f32' },
 ];
 
 function defaultCarForm() {
@@ -1766,6 +1826,32 @@ function AdminDashboard({ admin }) {
                       placeholder={f.placeholder}
                       rows={3}
                       required={f.required}
+                    />
+                  ) : f.colorPicker ? (
+                    <div className="admin-color-picker">
+                      <div className="admin-color-picker__selected" style={{ background: carForm.color_hex || '#cccccc', border: carForm.color_hex === '#ffffff' ? '1px solid #ddd' : 'none' }}>
+                        <span className="admin-color-picker__hex">{carForm.color_hex || '#cccccc'}</span>
+                      </div>
+                      <div className="admin-color-picker__palette">
+                        {COLOR_PALETTE.map(c => (
+                          <button
+                            key={c.hex}
+                            type="button"
+                            className={`admin-color-picker__swatch${carForm.color_hex === c.hex ? ' admin-color-picker__swatch--active' : ''}`}
+                            style={{ background: c.hex, border: c.hex === '#ffffff' ? '1px solid #ddd' : 'none' }}
+                            title={c.name}
+                            onClick={() => setCarForm({ ...carForm, color_hex: c.hex, color_name: c.name })}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ) : f.colorName ? (
+                    <input
+                      className="admin-car-form__input"
+                      type="text"
+                      value={carForm[f.key]}
+                      onChange={(e) => setCarForm({ ...carForm, [f.key]: e.target.value })}
+                      placeholder={f.placeholder}
                     />
                   ) : f.formatted ? (
                     <input
