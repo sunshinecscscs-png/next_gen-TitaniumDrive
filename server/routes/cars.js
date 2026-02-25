@@ -33,12 +33,24 @@ router.get('/', async (req, res) => {
       if (!queryVal) return;
       const vals = queryVal.split(',').map(v => v.trim()).filter(Boolean);
       if (!vals.length) return;
-      if (vals.length === 1) {
-        params.push(vals[0]);
-        conditions.push(ilike ? `${col} ILIKE $${idx++}` : `${col} = $${idx++}`);
+      if (ilike) {
+        // Case-insensitive matching
+        if (vals.length === 1) {
+          params.push(vals[0]);
+          conditions.push(`${col} ILIKE $${idx++}`);
+        } else {
+          const ors = vals.map(v => { params.push(v); return `${col} ILIKE $${idx++}`; });
+          conditions.push(`(${ors.join(' OR ')})`);
+        }
       } else {
-        params.push(vals);
-        conditions.push(`${col} = ANY($${idx++})`);
+        if (vals.length === 1) {
+          params.push(vals[0]);
+          conditions.push(`TRIM(${col}) = TRIM($${idx++})`);
+        } else {
+          // Use TRIM + ANY via subquery for multi-value exact match
+          params.push(vals);
+          conditions.push(`TRIM(${col}) = ANY(SELECT TRIM(unnest($${idx++}::text[])))`);
+        }
       }
     };
 
