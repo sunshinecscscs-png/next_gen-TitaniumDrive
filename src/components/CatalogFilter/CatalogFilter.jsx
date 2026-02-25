@@ -34,6 +34,16 @@ const brandLogoMap = {
   'BMW':           '/cars_logo/2f976f0d-4a2a-45ba-9e8a-bd7ae2bb1e34.webp',
 };
 
+/* Case-insensitive lookup helpers */
+const findBodyIcon = (name) => {
+  const key = Object.keys(bodyIconMap).find(k => k.toLowerCase() === name?.toLowerCase()?.trim());
+  return key ? bodyIconMap[key] : null;
+};
+const findBrandLogo = (name) => {
+  const key = Object.keys(brandLogoMap).find(k => k.toLowerCase() === name?.toLowerCase()?.trim());
+  return key ? brandLogoMap[key] : null;
+};
+
 function CatalogFilter() {
   const navigate = useNavigate();
   const [bodyTypes, setBodyTypes] = useState([]);
@@ -59,7 +69,7 @@ function CatalogFilter() {
               {bodyTypes.map((item) => (
                 <div className="catalog-filter__card" key={item.name} onClick={() => navigate(`/catalog?body_type=${encodeURIComponent(item.name)}`)}>
                   <span className="catalog-filter__card-icon">
-                    {bodyIconMap[item.name] ? <img src={bodyIconMap[item.name]} alt={item.name} /> : null}
+                    {findBodyIcon(item.name) ? <img src={findBodyIcon(item.name)} alt={item.name} /> : null}
                   </span>
                   <span className="catalog-filter__card-name">{item.name}</span>
                   <span className="catalog-filter__card-count">{item.count}</span>
@@ -76,7 +86,7 @@ function CatalogFilter() {
               {brands.slice(0, 10).map((item) => (
                 <div className="catalog-filter__card" key={item.name} onClick={() => navigate(`/catalog?brand=${encodeURIComponent(item.name)}`)}>
                   <span className="catalog-filter__card-logo">
-                    {brandLogoMap[item.name] ? <img src={brandLogoMap[item.name]} alt={item.name} /> : null}
+                    {findBrandLogo(item.name) ? <img src={findBrandLogo(item.name)} alt={item.name} /> : null}
                   </span>
                   <span className="catalog-filter__card-name">{item.name}</span>
                   <span className="catalog-filter__card-count">{item.count}</span>
