@@ -143,9 +143,9 @@ function CatalogPage({ onAuthOpen }) {
   const [priceMax, setPriceMax] = useState(() => searchParams.get('price_max') || '');
   const [selectedDiscount, setSelectedDiscount] = useState('Все');
   const [mileageMin, setMileageMin] = useState('0');
-  const [mileageMax, setMileageMax] = useState('185000');
-  const [yearMin, setYearMin] = useState('');
-  const [yearMax, setYearMax] = useState('');
+  const [mileageMax, setMileageMax] = useState('200000');
+  const [yearMin, setYearMin] = useState('2010');
+  const [yearMax, setYearMax] = useState('2026');
   const [selectedBodyTypes, setSelectedBodyTypes] = useState(() => {
     const bt = searchParams.get('body_type');
     return bt ? [bt] : [];
@@ -199,7 +199,7 @@ function CatalogPage({ onAuthOpen }) {
     drives: [],
     discounts: [{ name: 'Все', count: 0 }],
     priceMin: 0, priceMax: 0,
-    yearMin: 2020, yearMax: 2026,
+    yearMin: 2010, yearMax: 2026,
     total: 0,
   });
 
@@ -218,11 +218,8 @@ function CatalogPage({ onAuthOpen }) {
         setFacets(data);
         if (!priceMin) setPriceMin(String(data.priceMin || 0));
         if (!priceMax) setPriceMax(String(data.priceMax || 0));
-        if (!yearMin) setYearMin(String(data.yearMin || 2020));
-        if (!yearMax) setYearMax(String(data.yearMax || 2026));
-        if (data.mileageMax) {
-          setMileageMax(String(data.mileageMax));
-        }
+        if (!yearMin) setYearMin('2010');
+        if (!yearMax) setYearMax('2026');
       })
       .catch(() => {});
   }, []);
@@ -652,7 +649,7 @@ function CatalogPage({ onAuthOpen }) {
                 <span>{fmtPrice(mileageMin)} км</span>
                 <span>{fmtPrice(mileageMax)} км</span>
               </div>
-              <DualRange min={0} max={facets.mileageMax || 500000} step={1000} valueMin={mileageMin} valueMax={mileageMax} onMinChange={setMileageMin} onMaxChange={setMileageMax} />
+              <DualRange min={0} max={200000} step={1000} valueMin={mileageMin} valueMax={mileageMax} onMinChange={setMileageMin} onMaxChange={setMileageMax} />
               <div className="catalog-filter-block__range-inputs">
                 <input
                   type="text"
@@ -680,10 +677,10 @@ function CatalogPage({ onAuthOpen }) {
               </h3>
               {!collapsedFilters.year && (<>
               <div className="catalog-filter-block__range-labels">
-                <span>{facets.yearMin}</span>
-                <span>{facets.yearMax}</span>
+                <span>2010</span>
+                <span>2026</span>
               </div>
-              <DualRange min={facets.yearMin} max={facets.yearMax} step={1} valueMin={yearMin} valueMax={yearMax} onMinChange={setYearMin} onMaxChange={setYearMax} />
+              <DualRange min={2010} max={2026} step={1} valueMin={yearMin} valueMax={yearMax} onMinChange={setYearMin} onMaxChange={setYearMax} />
               <div className="catalog-filter-block__range-inputs">
                 <input
                   type="text"
