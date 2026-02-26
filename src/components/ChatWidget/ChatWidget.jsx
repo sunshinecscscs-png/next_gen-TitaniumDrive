@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../../hooks/useAuth';
-import { fetchMyChat, markMyMessagesRead, fetchGuestChat, markGuestMessagesRead, getOrCreateGuestId } from '../../api/chat';
+import { fetchMyChat, sendMyMessage, markMyMessagesRead, fetchGuestChat, markGuestMessagesRead, getOrCreateGuestId } from '../../api/chat';
 import './ChatWidget.css';
 
 const TOKEN_KEY = 'autosite_token';
@@ -76,7 +76,7 @@ function ChatWidget() {
       try {
         const data = isGuest ? await fetchGuestChat() : await fetchMyChat();
         if (cancelled) return;
-        setRoomId(data.room.id);
+        if (data.room) setRoomId(data.room.id);
         const mapped = data.messages.map(m => ({
           id: m.id,
           from: m.is_admin_reply ? 'manager' : 'user',
@@ -175,14 +175,40 @@ function ChatWidget() {
   }, [isOpen, user, roomId]);
 
   /* ── send message ── */
-  const handleSend = useCallback((e) => {
+  const handleSend = useCallback(async (e) => {
     e.preventDefault();
     const text = input.trim();
-    if (!text || !socketRef.current || !roomId) return;
+    if (!text || !socketRef.current) return;
+
+    /* If no room yet — create it by sending the first message via REST API */
+    if (!roomId) {
+      try {
+        const isGuest = !user;
+        const res = isGuest
+          ? await (await fetch('/api/chat/guest/send', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-guest-id': getOrCreateGuestId() },
+              body: JSON.stringify({ text }),
+            })).json()
+          : await sendMyMessage(text);
+        const msg = res.message;
+        const newRoomId = msg.room_id;
+        setRoomId(newRoomId);
+        setMessages(prev => [
+          ...prev,
+          { id: msg.id, from: 'user', text: msg.text, time: formatTime(msg.created_at) },
+        ]);
+        socketRef.current.emit('chat:join', { roomId: newRoomId });
+        setInput('');
+      } catch (err) {
+        console.error('First message send error:', err);
+      }
+      return;
+    }
 
     socketRef.current.emit('chat:send', { roomId, text });
     setInput('');
-  }, [input, roomId]);
+  }, [input, roomId, user]);
 
   /* ── typing indicator ── */
   const handleInputChange = (e) => {

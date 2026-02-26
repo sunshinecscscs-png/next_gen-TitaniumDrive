@@ -17,13 +17,10 @@ function requireAdmin(req, res, next) {
  */
 router.get('/my', auth, async (req, res) => {
   try {
-    /* Find or create room */
-    let room = (await pool.query('SELECT * FROM chat_rooms WHERE user_id = $1', [req.user.id])).rows[0];
+    /* Find room (do NOT create — room is created on first message) */
+    const room = (await pool.query('SELECT * FROM chat_rooms WHERE user_id = $1', [req.user.id])).rows[0];
     if (!room) {
-      room = (await pool.query(
-        'INSERT INTO chat_rooms (user_id) VALUES ($1) RETURNING *',
-        [req.user.id]
-      )).rows[0];
+      return res.json({ room: null, messages: [] });
     }
 
     /* Get messages */
@@ -124,13 +121,10 @@ router.get('/guest', async (req, res) => {
     const guestId = req.headers['x-guest-id'];
     if (!guestId) return res.status(400).json({ error: 'Нет guest ID' });
 
-    /* Find or create room */
-    let room = (await pool.query('SELECT * FROM chat_rooms WHERE guest_id = $1', [guestId])).rows[0];
+    /* Find room (do NOT create — room is created on first message) */
+    const room = (await pool.query('SELECT * FROM chat_rooms WHERE guest_id = $1', [guestId])).rows[0];
     if (!room) {
-      room = (await pool.query(
-        'INSERT INTO chat_rooms (guest_id, guest_name) VALUES ($1, $2) RETURNING *',
-        [guestId, 'Гость']
-      )).rows[0];
+      return res.json({ room: null, messages: [] });
     }
 
     /* Get messages */
@@ -241,6 +235,7 @@ router.get('/rooms', auth, requireAdmin, async (req, res) => {
        FROM chat_rooms r
        LEFT JOIN users u ON u.id = r.user_id
        LEFT JOIN users cu ON cu.id = r.claimed_by
+       WHERE EXISTS (SELECT 1 FROM chat_messages m WHERE m.room_id = r.id)
        ORDER BY last_message_at DESC NULLS LAST`
     );
     res.json({ rooms: rows });
@@ -352,6 +347,23 @@ router.patch('/rooms/:roomId/read', auth, requireAdmin, async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('chat/rooms/:id/read PATCH error:', err.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * DELETE /api/chat/rooms/empty
+ * Remove all chat rooms that have zero messages (admin cleanup)
+ */
+router.delete('/rooms/empty', auth, requireAdmin, async (req, res) => {
+  try {
+    const { rowCount } = await pool.query(
+      `DELETE FROM chat_rooms
+       WHERE NOT EXISTS (SELECT 1 FROM chat_messages m WHERE m.room_id = chat_rooms.id)`
+    );
+    res.json({ deleted: rowCount });
+  } catch (err) {
+    console.error('chat/rooms/empty DELETE error:', err.message);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
