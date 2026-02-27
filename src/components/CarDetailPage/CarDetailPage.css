@@ -528,6 +528,32 @@
   color: #555;
 }
 
+/* Equipment / Features grid */
+.car-detail__features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 24px;
+}
+
+.car-detail__feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  padding: 4px 0;
+}
+
+.car-detail__feature-item svg {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .car-detail__features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Equipment categories */
 .car-detail__equip-category {
   margin-bottom: 32px;

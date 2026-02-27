@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { loginUser } from '../../api/auth.js';
 import { fetchAdminStats, fetchAdminUsers, changeUserRole, deleteUser, checkHasAdmin, setupFirstAdmin, registerAdmin, createAdmin, fetchUserDetail, fetchAdminsList } from '../../api/admin.js';
-import { fetchAdminCars, createCar, updateCar, deleteCar, toggleCarPublish, uploadCarImages } from '../../api/cars.js';
+import { fetchAdminCars, fetchAdminCarById, createCar, updateCar, deleteCar, toggleCarPublish, uploadCarImages } from '../../api/cars.js';
 import { fetchCallbackRequests, fetchCallbackStats, updateCallbackStatus, deleteCallbackRequest, claimCallbackRequest } from '../../api/callbackRequests.js';
 import { fetchChatRooms, fetchRoomMessages, markRoomRead, claimChatRoom } from '../../api/chat.js';
 import './AdminPanel.css';
@@ -260,6 +260,7 @@ function defaultCarForm() {
 /* ══════════════════════ Dashboard ══════════════════════ */
 function AdminDashboard({ admin }) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'users' | 'cars' | 'requests'
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
@@ -492,6 +493,26 @@ function AdminDashboard({ admin }) {
   useEffect(() => {
     if (tab === 'cars') loadCars(1);
   }, [tab, loadCars]);
+
+  /* Deep-link: ?edit_car=ID — открыть редактирование конкретной машины */
+  const editCarHandled = useRef(false);
+  useEffect(() => {
+    const editCarId = searchParams.get('edit_car');
+    if (!editCarId || editCarHandled.current) return;
+    editCarHandled.current = true;
+    // Переключаемся на вкладку «Автомобили» и загружаем машину
+    setTab('cars');
+    fetchAdminCarById(editCarId)
+      .then(({ car }) => {
+        if (car) {
+          openEditCarForm(car);
+          // Убираем edit_car из URL
+          searchParams.delete('edit_car');
+          setSearchParams(searchParams, { replace: true });
+        }
+      })
+      .catch(() => {});
+  }, [searchParams, setSearchParams]);
 
   /* Car actions */
   const openNewCarForm = () => {

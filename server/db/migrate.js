@@ -162,6 +162,56 @@ BEGIN
     ALTER TABLE users ADD COLUMN nickname VARCHAR(100);
   END IF;
 
+  -- Parser / mobile.de extra fields
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='seats') THEN
+    ALTER TABLE cars ADD COLUMN seats INTEGER;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='doors') THEN
+    ALTER TABLE cars ADD COLUMN doors VARCHAR(10);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='owners') THEN
+    ALTER TABLE cars ADD COLUMN owners INTEGER;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='weight') THEN
+    ALTER TABLE cars ADD COLUMN weight INTEGER;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='cylinders') THEN
+    ALTER TABLE cars ADD COLUMN cylinders INTEGER;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='fuel_tank') THEN
+    ALTER TABLE cars ADD COLUMN fuel_tank VARCHAR(30);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='eco_class') THEN
+    ALTER TABLE cars ADD COLUMN eco_class VARCHAR(30);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='co2_emissions') THEN
+    ALTER TABLE cars ADD COLUMN co2_emissions VARCHAR(30);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='features') THEN
+    ALTER TABLE cars ADD COLUMN features JSONB DEFAULT '[]'::jsonb;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='origin') THEN
+    ALTER TABLE cars ADD COLUMN origin VARCHAR(100);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='interior') THEN
+    ALTER TABLE cars ADD COLUMN interior VARCHAR(100);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='source_url') THEN
+    ALTER TABLE cars ADD COLUMN source_url TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='first_registration') THEN
+    ALTER TABLE cars ADD COLUMN first_registration VARCHAR(20);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='airbags') THEN
+    ALTER TABLE cars ADD COLUMN airbags VARCHAR(255);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='climate') THEN
+    ALTER TABLE cars ADD COLUMN climate VARCHAR(100);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='cars' AND column_name='env_sticker') THEN
+    ALTER TABLE cars ADD COLUMN env_sticker VARCHAR(100);
+  END IF;
+
   -- Guest chat support
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='chat_rooms' AND column_name='guest_id') THEN
     ALTER TABLE chat_rooms ADD COLUMN guest_id VARCHAR(100);

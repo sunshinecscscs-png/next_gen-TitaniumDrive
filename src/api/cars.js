@@ -38,6 +38,13 @@ export async function fetchAdminCars({ page = 1, limit = 20, search = '' } = {})
   return data;
 }
 
+export async function fetchAdminCarById(id) {
+  const res = await fetch(`${API}/admin/${id}`, { headers: headers() });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Ошибка');
+  return data; // { car }
+}
+
 export async function createCar(car) {
   const res = await fetch(`${API}/admin/create`, {
     method: 'POST',

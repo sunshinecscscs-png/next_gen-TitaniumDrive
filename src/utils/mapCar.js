@@ -24,6 +24,23 @@ export function mapCar(c) {
     images: imgs,
     description: c.description || '',
     tags: buildTags(c),
+    // New parsed fields
+    seats: c.seats || null,
+    doors: c.doors || null,
+    owners: c.owners || null,
+    weight: c.weight || null,
+    cylinders: c.cylinders || null,
+    fuel_tank: c.fuel_tank || null,
+    eco_class: c.eco_class || null,
+    co2_emissions: c.co2_emissions || null,
+    features: Array.isArray(c.features) ? c.features : (typeof c.features === 'string' ? JSON.parse(c.features || '[]') : []),
+    origin: c.origin || null,
+    interior: c.interior || null,
+    source_url: c.source_url || null,
+    first_registration: c.first_registration || null,
+    airbags: c.airbags || null,
+    climate: c.climate || null,
+    env_sticker: c.env_sticker || null,
   };
 }
 

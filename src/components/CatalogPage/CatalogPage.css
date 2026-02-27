@@ -868,6 +868,8 @@
   padding: 0 16px;
   border-right: 1px solid #eee;
   flex-shrink: 0;
+  max-width: 200px;
+  min-width: 0;
 }
 
 .catalog-card__tag:first-child {
@@ -895,6 +897,8 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .catalog-card__tag-label {
@@ -902,6 +906,9 @@
   color: #999;
   font-weight: 500;
   letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .catalog-card__tag-value {
@@ -909,6 +916,8 @@
   color: #222;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Bottom row: location + actions */
@@ -1430,6 +1439,8 @@
     border-right: none;
     padding: 4px 0;
     gap: 6px;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .catalog-card__tag:first-child {

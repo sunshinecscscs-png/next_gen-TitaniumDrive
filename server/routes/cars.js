@@ -251,6 +251,18 @@ router.get('/admin/list', auth, requireAdmin, async (req, res) => {
   }
 });
 
+/* ───── GET /api/cars/admin/:id — одна машина (включая неопубликованные) ───── */
+router.get('/admin/:id', auth, requireAdmin, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM cars WHERE id = $1', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Автомобиль не найден' });
+    res.json({ car: rows[0] });
+  } catch (err) {
+    console.error('Admin car detail error:', err);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 /* ───── POST /api/cars/admin/create ───── */
 router.post('/admin/create', auth, requireAdmin, async (req, res) => {
   try {
@@ -259,6 +271,9 @@ router.post('/admin/create', auth, requireAdmin, async (req, res) => {
       body_type, fuel, drive, transmission, engine, power,
       consumption, acceleration, trunk, color_name, color_hex,
       city, dealer, image, image2, images, description, is_published, mileage,
+      seats, doors, owners, weight, cylinders, fuel_tank,
+      eco_class, co2_emissions, features, origin, interior, source_url, first_registration,
+      airbags, climate, env_sticker,
     } = req.body;
 
     // Auto-generate name from brand + model + year if not provided
@@ -268,15 +283,20 @@ router.post('/admin/create', auth, requireAdmin, async (req, res) => {
     if (!price && price !== 0) return res.status(400).json({ error: 'Цена обязательна' });
 
     const imagesJson = JSON.stringify(Array.isArray(images) ? images.slice(0, 30) : []);
+    const featuresJson = JSON.stringify(Array.isArray(features) ? features : []);
 
     const { rows } = await pool.query(
       `INSERT INTO cars (
         name, spec, price, old_price, condition, brand, model, year,
         body_type, fuel, drive, transmission, engine, power,
         consumption, acceleration, trunk, color_name, color_hex,
-        city, dealer, image, image2, images, description, is_published, mileage
+        city, dealer, image, image2, images, description, is_published, mileage,
+        seats, doors, owners, weight, cylinders, fuel_tank,
+        eco_class, co2_emissions, features, origin, interior, source_url, first_registration,
+        airbags, climate, env_sticker
       ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,
+        $28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43
       ) RETURNING *`,
       [
         name, spec || null, Number(price), old_price ? Number(old_price) : null,
@@ -286,6 +306,11 @@ router.post('/admin/create', auth, requireAdmin, async (req, res) => {
         trunk || null, color_name || null, color_hex || '#cccccc',
         city || null, dealer || null, image || null, image2 || null,
         imagesJson, description || null, is_published !== false, mileage ? Number(mileage) : 0,
+        seats ? Number(seats) : null, doors || null, owners ? Number(owners) : null,
+        weight ? Number(weight) : null, cylinders ? Number(cylinders) : null, fuel_tank || null,
+        eco_class || null, co2_emissions || null, featuresJson, origin || null, interior || null,
+        source_url || null, first_registration || null,
+        airbags || null, climate || null, env_sticker || null,
       ],
     );
 
@@ -310,6 +335,9 @@ router.put('/admin/:id', auth, requireAdmin, async (req, res) => {
       'body_type', 'fuel', 'drive', 'transmission', 'engine', 'power',
       'consumption', 'acceleration', 'trunk', 'color_name', 'color_hex',
       'city', 'dealer', 'image', 'image2', 'images', 'description', 'is_published', 'mileage',
+      'seats', 'doors', 'owners', 'weight', 'cylinders', 'fuel_tank',
+      'eco_class', 'co2_emissions', 'features', 'origin', 'interior', 'source_url', 'first_registration',
+      'airbags', 'climate', 'env_sticker',
     ];
 
     const setClauses = [];
@@ -320,8 +348,9 @@ router.put('/admin/:id', auth, requireAdmin, async (req, res) => {
       if (req.body[field] !== undefined) {
         setClauses.push(`${field} = $${idx++}`);
         let val = req.body[field];
-        if (['price', 'old_price', 'year', 'mileage'].includes(field) && val !== null) val = Number(val);
+        if (['price', 'old_price', 'year', 'mileage', 'seats', 'owners', 'weight', 'cylinders'].includes(field) && val !== null) val = Number(val);
         if (field === 'images') val = JSON.stringify(Array.isArray(val) ? val.slice(0, 30) : []);
+        if (field === 'features') val = JSON.stringify(Array.isArray(val) ? val : []);
         params.push(val);
       }
     }
