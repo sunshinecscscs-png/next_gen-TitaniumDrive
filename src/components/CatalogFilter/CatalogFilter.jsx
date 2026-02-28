@@ -56,7 +56,19 @@ function CatalogFilter() {
       .then((r) => r.json())
       .then((data) => {
         if (data.bodyTypes) setBodyTypes(data.bodyTypes);
-        if (data.brands) setBrands(data.brands);
+        if (data.brands) {
+          // Deduplicate brands (merge counts for same name)
+          const map = new Map();
+          data.brands.forEach((b) => {
+            const key = b.name.trim().toLowerCase();
+            if (map.has(key)) {
+              map.get(key).count += b.count;
+            } else {
+              map.set(key, { ...b, name: b.name.trim() });
+            }
+          });
+          setBrands([...map.values()]);
+        }
       })
       .catch(() => {});
   }, []);

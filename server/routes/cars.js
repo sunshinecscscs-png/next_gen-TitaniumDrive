@@ -135,7 +135,7 @@ router.get('/stats/counts', async (req, res) => {
     const nn = (col) => `${col} IS NOT NULL AND ${col} != ''`;
 
     const facetQuery = (col) =>
-      `SELECT ${col} AS name, COUNT(*)::int AS count FROM cars WHERE ${pub} AND ${nn(col)} GROUP BY ${col} ORDER BY count DESC`;
+      `SELECT TRIM(${col}) AS name, COUNT(*)::int AS count FROM cars WHERE ${pub} AND ${nn(col)} GROUP BY TRIM(${col}) ORDER BY count DESC`;
 
     const [
       bodyRes, brandRes, conditionRes, modelRes,
