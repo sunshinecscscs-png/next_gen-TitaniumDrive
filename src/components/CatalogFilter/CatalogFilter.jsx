@@ -32,7 +32,7 @@ const brandLogoMap = {
   'Land Rover':    '/cars_logo/e51d5e13-bd54-41dd-be39-b1205553deae.webp',
   'Dacia':         '/cars_logo/2f1e7b83-6c63-4228-8f74-00b1da91c2be.webp',
   'BMW':           '/cars_logo/2f976f0d-4a2a-45ba-9e8a-bd7ae2bb1e34.webp',
-  'Kia':           '/cars_logo/160499-kia-free-transparent-image-hq.png',
+  'Kia':           '/cars_logo/575723_v6.jpg',
   'Mitsubishi':    '/cars_logo/mitsubishi.png',
 };
 
