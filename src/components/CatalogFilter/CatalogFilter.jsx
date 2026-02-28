@@ -33,7 +33,7 @@ const brandLogoMap = {
   'Dacia':         '/cars_logo/2f1e7b83-6c63-4228-8f74-00b1da91c2be.webp',
   'BMW':           '/cars_logo/2f976f0d-4a2a-45ba-9e8a-bd7ae2bb1e34.webp',
   'Kia':           '/cars_logo/160499-kia-free-transparent-image-hq.png',
-  'Mitsubishi':    '/cars_logo/e6e456b9a55e1be0b73ae395e114fb0f.webp',
+  'Mitsubishi':    '/cars_logo/mitsubishi.png',
 };
 
 /* Case-insensitive lookup helpers */
