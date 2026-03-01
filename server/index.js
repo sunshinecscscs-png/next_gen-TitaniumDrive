@@ -19,6 +19,7 @@ import chatRouter from './routes/chat.js';
 import { sendMail } from './utils/mailer.js';
 import pool from './db/pool.js';
 import { startBot } from './bot/index.js';
+import { startCatalogBot } from './bot/catalog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -204,6 +205,7 @@ io.on('connection', async (socket) => {
 httpServer.listen(PORT, () => {
   console.log(`🚀  Server running on http://localhost:${PORT}`);
 
-  // Запускаем Telegram бот
+  // Запускаем Telegram ботов
   startBot();
+  startCatalogBot();
 });
