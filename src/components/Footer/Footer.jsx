@@ -38,7 +38,7 @@ function Footer() {
 
         <div className="footer__col">
           <h4 className="footer__heading">Контакты</h4>
-          <a href="tel:+79820780996" className="footer__link">+7 (982) 078-09-96</a>
+          <a href="tel:88005055199" className="footer__link">8 (800) 505-51-99</a>
           <a href="mailto:contact.finteh.avto@gmail.com" className="footer__link">contact.finteh.avto@gmail.com</a>
           <p className="footer__address">214032, Смоленская область, г Смоленск, ул Лавочкина, д. 106, помещ. 7</p>
         </div>

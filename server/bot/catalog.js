@@ -419,7 +419,7 @@ export function startCatalogBot() {
         `✅ <b>Заявка на заказ отправлена!</b>\n\n` +
         `🚗 ${carName}\n\n` +
         `Наш менеджер свяжется с вами в ближайшее время.\n` +
-        `Или вы можете позвонить нам: <b>+7 (XXX) XXX-XX-XX</b>`,
+        `Или вы можете позвонить нам: <b>8 (800) 505-51-99</b>`,
         {
           parse_mode: 'HTML',
           ...Markup.inlineKeyboard([
