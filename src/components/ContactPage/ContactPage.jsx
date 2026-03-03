@@ -119,7 +119,7 @@ function ContactPage() {
                 </svg>
               </div>
               <div>
-                <a href="tel:+79820780996" style={{color:'inherit',textDecoration:'none'}}>+7 (982) 078-09-96</a>
+                <a href="tel:+79820780996" style={{color:'inherit',textDecoration:'none'}}>8 (800) 505-51-99</a>
               </div>
             </div>
 
