@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { submitCallbackRequest } from '../../api/callbackRequests.js';
 import Header from '../Header/Header';
+import { isMoscowWorkingHours } from '../../utils/workHours';
 import Footer from '../Footer/Footer';
 import './ContactPage.css';
 
@@ -231,7 +232,9 @@ function ContactPage() {
             </div>
             <h3 className="contact-page__success-title">Заявка отправлена!</h3>
             <p className="contact-page__success-text">
-              Спасибо, {name}! Наш менеджер свяжется с вами в ближайшее время.
+              {isMoscowWorkingHours()
+                ? <>Спасибо, {name}! Наш менеджер свяжется с вами в течение 10 минут.</>
+                : <>Спасибо, {name}! Рабочий день уже завершён — менеджер свяжется с вами завтра.</>}
             </p>
             <button className="contact-page__form-submit" onClick={handleReset}>
               Отправить ещё

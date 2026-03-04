@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { submitCallbackRequest } from '../../api/callbackRequests.js';
+import { isMoscowWorkingHours } from '../../utils/workHours';
 import './SearchSection.css';
 
 function SearchSection() {
@@ -109,7 +110,9 @@ function SearchSection() {
             </div>
             <h3 className="search-success__title">Заявка отправлена!</h3>
             <p className="search-success__text">
-              Спасибо, {name}! Наш менеджер свяжется с вами по номеру <strong>{phone}</strong> в ближайшее время.
+              {isMoscowWorkingHours()
+                ? <>Спасибо, {name}! Наш менеджер свяжется с вами по номеру <strong>{phone}</strong> в течение 10 минут.</>
+                : <>Спасибо, {name}! Рабочий день уже завершён — менеджер свяжется с вами завтра по номеру <strong>{phone}</strong>.</>}
             </p>
             <button className="search-success__btn" onClick={handleClose}>
               Отлично

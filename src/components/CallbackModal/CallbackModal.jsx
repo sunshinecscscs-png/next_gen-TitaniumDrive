@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { submitCallbackRequest } from '../../api/callbackRequests.js';
+import { isMoscowWorkingHours } from '../../utils/workHours';
 import './CallbackModal.css';
 
 function CallbackModal({ onClose, carName, carId }) {
@@ -121,7 +122,9 @@ function CallbackModal({ onClose, carName, carId }) {
             </div>
             <h3 className="callback-modal__success-title">Заявка отправлена!</h3>
             <p className="callback-modal__success-text">
-              Спасибо, {name}! Наш менеджер свяжется с вами по номеру <strong>{phone}</strong> в ближайшее время.
+              {isMoscowWorkingHours()
+                ? <>Спасибо, {name}! Наш менеджер свяжется с вами по номеру <strong>{phone}</strong> в течение 10 минут.</>
+                : <>Спасибо, {name}! Рабочий день уже завершён — менеджер свяжется с вами завтра по номеру <strong>{phone}</strong>.</>}
             </p>
             <button className="callback-modal__success-btn" onClick={onClose}>
               Отлично

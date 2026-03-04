@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import { handlePhoneInput } from '../../utils/phoneFormat';
+import { isMoscowWorkingHours } from '../../utils/workHours';
 import './WhyUsPage.css';
 
 function WhyUsPage({ onAuthOpen }) {
@@ -130,7 +131,9 @@ function WhyUsPage({ onAuthOpen }) {
                 <circle cx="24" cy="24" r="23" stroke="#4caf50" strokeWidth="2"/>
                 <path d="M14 24l7 7 13-13" stroke="#4caf50" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <p>Спасибо! Мы свяжемся с вами в ближайшее время.</p>
+              <p>{isMoscowWorkingHours()
+                ? 'Спасибо! Мы свяжемся с вами в течение 10 минут.'
+                : 'Спасибо! Рабочий день уже завершён — мы свяжемся с вами завтра.'}</p>
             </div>
           ) : (
             <form className="whyus-page__cta-form" onSubmit={handleCtaSubmit}>

@@ -7,6 +7,7 @@ import { placeOrder } from '../../api/orders';
 import { submitCallbackRequest } from '../../api/callbackRequests';
 import { mapCar } from '../../utils/mapCar';
 import { handlePhoneInput } from '../../utils/phoneFormat';
+import { isMoscowWorkingHours } from '../../utils/workHours';
 import CallbackModal from '../CallbackModal/CallbackModal';
 import '../CatalogPage/CatalogPage.css';
 import './RecommendedCars.css';
@@ -436,7 +437,9 @@ function RecommendedCars({ onAuthOpen }) {
               </svg>
             </div>
             <h3 className="buy-modal__title">Заказ оформлен!</h3>
-            <p className="buy-modal__text">Менеджер свяжется с вами в ближайшее время.</p>
+            <p className="buy-modal__text">{isMoscowWorkingHours()
+              ? 'Менеджер свяжется с вами в течение 10 минут.'
+              : 'Рабочий день уже завершён — менеджер свяжется с вами завтра.'}</p>
             {buyTargetCar && (
               <div className="buy-modal__car-preview">
                 {buyTargetCar.image && <img src={buyTargetCar.image} alt={buyTargetCar.name} />}
