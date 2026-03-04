@@ -53,10 +53,6 @@ function isAdmin(ctx) {
 
 /* ── /start ── */
 bot.start((ctx) => {
-  if (!isAdmin(ctx)) {
-    return ctx.reply('⛔ У вас нет доступа к этому боту.');
-  }
-
   const sites = getSites();
   const sitesList = sites.length
     ? sites.map(s => `  ${s.emoji} ${s.name}`).join('\n')
@@ -79,7 +75,6 @@ bot.start((ctx) => {
 
 /* ── /help ── */
 bot.help((ctx) => {
-  if (!isAdmin(ctx)) return;
   ctx.reply(
     '📖 <b>Как пользоваться:</b>\n\n' +
     '1. Скопируй ссылку на объявление с mobile.de\n' +
@@ -96,7 +91,6 @@ bot.help((ctx) => {
 
 /* ── /status ── */
 bot.command('status', (ctx) => {
-  if (!isAdmin(ctx)) return;
   const sites = getSites();
   ctx.reply(
     `✅ Бот работает\n` +
@@ -179,10 +173,6 @@ bot.command('stats', async (ctx) => {
 /* ═══════════════════ Обработка ссылок ═══════════════════ */
 
 bot.on('text', async (ctx) => {
-  if (!isAdmin(ctx)) {
-    return ctx.reply('⛔ У вас нет доступа.');
-  }
-
   const text = ctx.message.text.trim();
 
   const urlRegex = /https?:\/\/[^\s]+mobile\.de[^\s]+/gi;
