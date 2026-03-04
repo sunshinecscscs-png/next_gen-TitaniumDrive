@@ -640,6 +640,68 @@ export function startCatalogBot() {
     return sendCarList(ctx, { search: text }, 0);
   });
 
+  /* ══════════════ Пересылка медиа в чате (фото, видео, документы, голосовые, стикеры) ══════════════ */
+
+  /**
+   * Универсальный обработчик медиа-сообщений для чата админ↔клиент.
+   * Пересылает через copyMessage — сохраняет оригинальный формат.
+   */
+  async function forwardMediaInChat(ctx) {
+    const senderId = ctx.from.id;
+
+    // Админ → клиент
+    if (isAdmin(senderId) && adminChats.has(senderId)) {
+      const targetUserId = adminChats.get(senderId);
+      try {
+        // Сначала подпись «от менеджера»
+        await catalogBot.telegram.sendMessage(targetUserId,
+          `💬 <b>Менеджер TitaniumDrive:</b>`,
+          { parse_mode: 'HTML' }
+        );
+        // Пересылаем медиа как есть
+        await catalogBot.telegram.copyMessage(targetUserId, ctx.chat.id, ctx.message.message_id);
+        await ctx.reply('✅ Медиа отправлено клиенту.', {
+          ...Markup.inlineKeyboard([
+            [Markup.button.callback('🔴 Завершить диалог', `endchat:${targetUserId}`)],
+          ]),
+        });
+      } catch {
+        await ctx.reply('❌ Не удалось отправить медиа клиенту.');
+      }
+      return;
+    }
+
+    // Клиент → админ
+    if (userChats.has(senderId)) {
+      const adminId = userChats.get(senderId);
+      const name = ctx.from?.first_name || ctx.from?.username || 'Клиент';
+      try {
+        await catalogBot.telegram.sendMessage(adminId,
+          `💬 <b>Клиент ${name}</b> (ID: ${senderId}) отправил медиа:`,
+          {
+            parse_mode: 'HTML',
+            ...Markup.inlineKeyboard([
+              [Markup.button.callback('🔴 Завершить диалог', `endchat:${senderId}`)],
+            ]),
+          }
+        );
+        await catalogBot.telegram.copyMessage(adminId, ctx.chat.id, ctx.message.message_id);
+      } catch { /* ok */ }
+      return;
+    }
+
+    // Не в чате — игнорируем медиа
+  }
+
+  catalogBot.on('photo', forwardMediaInChat);
+  catalogBot.on('video', forwardMediaInChat);
+  catalogBot.on('document', forwardMediaInChat);
+  catalogBot.on('voice', forwardMediaInChat);
+  catalogBot.on('video_note', forwardMediaInChat);
+  catalogBot.on('sticker', forwardMediaInChat);
+  catalogBot.on('animation', forwardMediaInChat);
+  catalogBot.on('audio', forwardMediaInChat);
+
   /* Глобальный обработчик ошибок — не даём боту упасть */
   catalogBot.catch((err, ctx) => {
     console.error(`[CatalogBot] Ошибка в обработчике (${ctx?.updateType || 'unknown'}):`, err.message || err);
