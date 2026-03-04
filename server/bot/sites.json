@@ -5,9 +5,9 @@
     "db": {
       "host": "127.0.0.1",
       "port": 5432,
-      "database": "autosite",
-      "user": "postgres",
-      "password": "Sun1213Shine"
+      "database": "titaniumdrive",
+      "user": "titanium",
+      "password": "tatanium123"
     },
     "siteUrl": "https://titaniumdrive.ru",
     "apiBaseUrl": "http://localhost:4000"
