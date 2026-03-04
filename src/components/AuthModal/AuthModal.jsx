@@ -32,17 +32,19 @@ function AuthModal({ onClose }) {
   const formatPhone = (value) => {
     const digits = value.replace(/\D/g, '');
     if (digits.length === 0) return '';
-    let formatted = '';
-    if (digits.length > 0) formatted += digits.slice(0, 3);
-    if (digits.length > 3) formatted += ' ' + digits.slice(3, 6);
-    if (digits.length > 6) formatted += '-' + digits.slice(6, 8);
-    if (digits.length > 8) formatted += '-' + digits.slice(8, 10);
-    return formatted;
+    let result = '+7';
+    if (digits.length > 1) result += ' (' + digits.slice(1, 4);
+    if (digits.length >= 4) result += ')';
+    if (digits.length > 4) result += ' ' + digits.slice(4, 7);
+    if (digits.length > 7) result += '-' + digits.slice(7, 9);
+    if (digits.length > 9) result += '-' + digits.slice(9, 11);
+    return result;
   };
 
   const handlePhoneChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, '');
-    if (raw.length <= 10) {
+    let raw = e.target.value.replace(/\D/g, '');
+    if (!raw.startsWith('7')) raw = '7' + raw;
+    if (raw.length <= 11) {
       setPhone(formatPhone(raw));
     }
   };
@@ -260,14 +262,10 @@ function AuthModal({ onClose }) {
 
             <label className="auth-modal__label" style={{ marginTop: 20 }}>Номер телефона (необязательно)</label>
             <div className="auth-modal__phone-row">
-              <div className="auth-modal__country">
-                <span className="auth-modal__flag">🇷🇺</span>
-                <span className="auth-modal__code">+7</span>
-              </div>
               <input
                 type="tel"
                 className="auth-modal__phone-input"
-                placeholder="900 000-00-00"
+                placeholder="+7 (___) ___-__-__"
                 value={phone}
                 onChange={handlePhoneChange}
               />

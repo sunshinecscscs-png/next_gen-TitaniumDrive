@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth.js';
 import { fetchProfile, updateProfile, updatePassword } from '../../api/profile.js';
+import { handlePhoneInput } from '../../utils/phoneFormat.js';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 import './ProfilePage.css';
@@ -312,7 +313,7 @@ function ProfilePage({ onAuthOpen }) {
             <h3>Контактные данные</h3>
             {error && <div className="profile-edit-modal__error">{error}</div>}
             <label>Телефон</label>
-            <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+7 900 000-00-00" />
+            <input value={form.phone || ''} onChange={handlePhoneInput((v) => setForm({ ...form, phone: v }))} placeholder="+7 (___) ___-__-__" />
             <label>Адрес</label>
             <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Город, улица, дом" />
             <div className="profile-edit-modal__actions">

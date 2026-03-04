@@ -2,38 +2,22 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
+import { handlePhoneInput } from '../../utils/phoneFormat';
 import './WhyUsPage.css';
 
 function WhyUsPage({ onAuthOpen }) {
   const navigate = useNavigate();
   const [ctaForm, setCtaForm] = useState(false);
   const [ctaName, setCtaName] = useState('');
-  const [ctaPhone, setCtaPhone] = useState('+7 ');
+  const [ctaPhone, setCtaPhone] = useState('+7');
   const [ctaSuccess, setCtaSuccess] = useState(false);
-
-  const handleCtaPhone = (e) => {
-    const raw = e.target.value.replace(/\D/g, '');
-    let digits = raw;
-    if (digits.startsWith('7')) digits = digits.slice(1);
-    if (digits.startsWith('8')) digits = digits.slice(1);
-    digits = digits.slice(0, 10);
-    let f = '+7 ';
-    if (digits.length > 0) f += '(' + digits.slice(0, 3);
-    if (digits.length >= 3) f += ') ';
-    if (digits.length > 3) f += digits.slice(3, 6);
-    if (digits.length >= 6) f += ' - ';
-    if (digits.length > 6) f += digits.slice(6, 8);
-    if (digits.length >= 8) f += ' - ';
-    if (digits.length > 8) f += digits.slice(8, 10);
-    setCtaPhone(f);
-  };
 
   const handleCtaSubmit = (e) => {
     e.preventDefault();
     const digits = ctaPhone.replace(/\D/g, '');
     if (!ctaName.trim() || digits.length < 11) return;
     setCtaSuccess(true);
-    setTimeout(() => { setCtaForm(false); setCtaSuccess(false); setCtaName(''); setCtaPhone('+7 '); }, 3000);
+    setTimeout(() => { setCtaForm(false); setCtaSuccess(false); setCtaName(''); setCtaPhone('+7'); }, 3000);
   };
 
   return (
@@ -160,10 +144,10 @@ function WhyUsPage({ onAuthOpen }) {
               <input
                 type="tel"
                 className="whyus-page__cta-input"
-                placeholder="+7 (___) ___ - __ - __"
+                placeholder="+7 (___) ___-__-__"
                 value={ctaPhone}
-                onChange={handleCtaPhone}
-                onKeyDown={(e) => { if ((e.key === 'Backspace' || e.key === 'Delete') && ctaPhone.length <= 3) e.preventDefault(); }}
+                onChange={handlePhoneInput(setCtaPhone)}
+                onKeyDown={(e) => { if ((e.key === 'Backspace' || e.key === 'Delete') && ctaPhone.length <= 2) e.preventDefault(); }}
               />
               <button type="submit" className="whyus-page__cta-btn whyus-page__cta-btn--primary">Отправить</button>
               <button type="button" className="whyus-page__cta-btn whyus-page__cta-btn--outline" onClick={() => setCtaForm(false)}>Отмена</button>

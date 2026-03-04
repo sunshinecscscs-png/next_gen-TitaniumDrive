@@ -8,7 +8,7 @@ import './ContactPage.css';
 function ContactPage() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('+7 ');
+  const [phone, setPhone] = useState('+7');
   const [email, setEmail] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
   const [topic, setTopic] = useState('');
@@ -17,28 +17,24 @@ function ContactPage() {
   const [success, setSuccess] = useState(false);
 
   const handlePhoneChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, '');
-    let digits = raw;
-    // always treat as Russian +7
-    if (digits.startsWith('7')) digits = digits.slice(1);
-    if (digits.startsWith('8')) digits = digits.slice(1);
-    digits = digits.slice(0, 10);
-
-    let formatted = '+7 ';
-    if (digits.length > 0) formatted += '(' + digits.slice(0, 3);
-    if (digits.length >= 3) formatted += ') ';
-    if (digits.length > 3) formatted += digits.slice(3, 6);
-    if (digits.length >= 6) formatted += ' - ';
-    if (digits.length > 6) formatted += digits.slice(6, 8);
-    if (digits.length >= 8) formatted += ' - ';
-    if (digits.length > 8) formatted += digits.slice(8, 10);
-
-    setPhone(formatted);
+    let raw = e.target.value.replace(/\D/g, '');
+    if (!raw.startsWith('7')) raw = '7' + raw;
+    if (raw.length <= 11) {
+      const digits = raw;
+      if (digits.length === 0) { setPhone(''); return; }
+      let result = '+7';
+      if (digits.length > 1) result += ' (' + digits.slice(1, 4);
+      if (digits.length >= 4) result += ')';
+      if (digits.length > 4) result += ' ' + digits.slice(4, 7);
+      if (digits.length > 7) result += '-' + digits.slice(7, 9);
+      if (digits.length > 9) result += '-' + digits.slice(9, 11);
+      setPhone(result);
+    }
   };
 
   const handlePhoneKeyDown = (e) => {
-    // prevent deleting the "+7 " prefix
-    if ((e.key === 'Backspace' || e.key === 'Delete') && phone.length <= 3) {
+    // prevent deleting the "+7" prefix
+    if ((e.key === 'Backspace' || e.key === 'Delete') && phone.length <= 2) {
       e.preventDefault();
     }
   };
@@ -171,7 +167,7 @@ function ContactPage() {
                 <input
                   type="tel"
                   className="contact-page__form-input"
-                  placeholder="+7 (___) ___ - __ - __"
+                  placeholder="+7 (___) ___-__-__"
                   value={phone}
                   onChange={handlePhoneChange}
                   onKeyDown={handlePhoneKeyDown}

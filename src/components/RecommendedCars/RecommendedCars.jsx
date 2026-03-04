@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { placeOrder } from '../../api/orders';
 import { submitCallbackRequest } from '../../api/callbackRequests';
 import { mapCar } from '../../utils/mapCar';
+import { handlePhoneInput } from '../../utils/phoneFormat';
 import CallbackModal from '../CallbackModal/CallbackModal';
 import '../CatalogPage/CatalogPage.css';
 import './RecommendedCars.css';
@@ -385,7 +386,7 @@ function RecommendedCars({ onAuthOpen }) {
             </div>
             <form className="buy-modal__form" onSubmit={handleGuestBuySubmit}>
               <input className="buy-modal__input" type="text" placeholder="Ваше имя" value={buyGuestName} onChange={(e) => setBuyGuestName(e.target.value)} required autoFocus />
-              <input className="buy-modal__input" type="tel" placeholder="Ваш телефон" value={buyGuestPhone} onChange={(e) => setBuyGuestPhone(e.target.value)} required />
+              <input className="buy-modal__input" type="tel" placeholder="+7 (___) ___-__-__" value={buyGuestPhone} onChange={handlePhoneInput(setBuyGuestPhone)} required />
               <button className="buy-modal__submit" type="submit" disabled={buySubmitting}>{buySubmitting ? 'Отправляем...' : 'Оставить заявку'}</button>
             </form>
           </div>
@@ -414,7 +415,7 @@ function RecommendedCars({ onAuthOpen }) {
               </div>
             </div>
             <form className="buy-modal__form" onSubmit={handleBuyContactSubmit}>
-              <input className="buy-modal__input" type="tel" placeholder="Ваш телефон" value={buyPhone} onChange={(e) => setBuyPhone(e.target.value)} required autoFocus />
+              <input className="buy-modal__input" type="tel" placeholder="+7 (___) ___-__-__" value={buyPhone} onChange={handlePhoneInput(setBuyPhone)} required autoFocus />
               <button className="buy-modal__submit" type="submit" disabled={buySubmitting}>{buySubmitting ? 'Оформляем...' : 'Оформить заказ'}</button>
             </form>
           </div>
