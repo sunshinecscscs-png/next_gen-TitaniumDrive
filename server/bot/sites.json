@@ -11,5 +11,18 @@
     },
     "siteUrl": "https://titaniumdrive.ru",
     "apiBaseUrl": "http://localhost:4000"
+  },
+  {
+    "name": "BusinessAuto24",
+    "emoji": "🚙",
+    "db": {
+      "host": "5.129.193.35",
+      "port": 5432,
+      "database": "autosite",
+      "user": "autosite",
+      "password": "Sun1213Shine"
+    },
+    "siteUrl": "https://businessauto24.ru",
+    "apiBaseUrl": "http://5.129.193.35:4000"
   }
 ]
