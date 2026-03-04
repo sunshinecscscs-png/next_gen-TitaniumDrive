@@ -634,11 +634,40 @@ export function startCatalogBot() {
     return sendCarList(ctx, { search: text }, 0);
   });
 
+  /* Глобальный обработчик ошибок — не даём боту упасть */
+  catalogBot.catch((err, ctx) => {
+    console.error(`[CatalogBot] Ошибка в обработчике (${ctx?.updateType || 'unknown'}):`, err.message || err);
+  });
+
   /* ══════════════════════ Launch ══════════════════════ */
 
-  catalogBot.launch()
-    .then(() => console.log('🛒 Telegram каталог-бот запущен'))
-    .catch((err) => console.error('❌ Ошибка запуска каталог-бота:', err.message));
+  const CATALOG_RESTART_DELAY = 5000;
+
+  async function launchCatalogWithRetry(attempt = 1) {
+    try {
+      await catalogBot.launch();
+      console.log('🛒 Telegram каталог-бот запущен');
+    } catch (err) {
+      console.error(`❌ Ошибка запуска каталог-бота (попытка ${attempt}):`, err.message);
+      const delay = Math.min(CATALOG_RESTART_DELAY * attempt, 60000);
+      console.log(`🔄 Повтор каталог-бота через ${delay / 1000}с...`);
+      setTimeout(() => launchCatalogWithRetry(attempt + 1), delay);
+    }
+  }
+
+  launchCatalogWithRetry();
+
+  // Очистка _userFilters и _userBudgets (утечка памяти — чистим старые записи каждые 30 мин)
+  setInterval(() => {
+    if (catalogBot._userFilters?.size > 10000) {
+      catalogBot._userFilters.clear();
+      console.log('[CatalogBot] 🧹 Очистка _userFilters (>10K записей)');
+    }
+    if (catalogBot._userBudgets?.size > 10000) {
+      catalogBot._userBudgets.clear();
+      console.log('[CatalogBot] 🧹 Очистка _userBudgets (>10K записей)');
+    }
+  }, 30 * 60 * 1000);
 
   process.once('SIGINT', () => catalogBot.stop('SIGINT'));
   process.once('SIGTERM', () => catalogBot.stop('SIGTERM'));

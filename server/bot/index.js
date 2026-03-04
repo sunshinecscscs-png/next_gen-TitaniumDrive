@@ -603,15 +603,32 @@ function truncateUrl(url, max = 60) {
 
 /* ═══════════════════ Launch ═══════════════════ */
 
+/* Глобальный обработчик ошибок Telegraf — ловим всё, чтобы бот не падал */
+bot.catch((err, ctx) => {
+  console.error(`[Bot] Ошибка в обработчике (${ctx?.updateType || 'unknown'}):`, err.message || err);
+});
+
+const BOT_RESTART_DELAY = 5000; // ms между попытками перезапуска
+
+async function launchBotWithRetry(attempt = 1) {
+  try {
+    await bot.launch();
+    console.log('🤖 Telegram бот запущен (мульти-сайт)');
+  } catch (err) {
+    console.error(`❌ Ошибка запуска бота (попытка ${attempt}):`, err.message);
+    const delay = Math.min(BOT_RESTART_DELAY * attempt, 60000);
+    console.log(`🔄 Повтор через ${delay / 1000}с...`);
+    setTimeout(() => launchBotWithRetry(attempt + 1), delay);
+  }
+}
+
 export function startBot() {
   if (!process.env.TELEGRAM_BOT_TOKEN) {
     console.log('⚠️  TELEGRAM_BOT_TOKEN не задан — Telegram бот не запущен');
     return null;
   }
 
-  bot.launch()
-    .then(() => console.log('🤖 Telegram бот запущен (мульти-сайт)'))
-    .catch((err) => console.error('❌ Ошибка запуска бота:', err.message));
+  launchBotWithRetry();
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));

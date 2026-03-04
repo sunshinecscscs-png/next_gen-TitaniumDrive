@@ -25,6 +25,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config();
 
+/* ── Глобальная защита от крашей процесса ── */
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️  Unhandled Rejection:', reason?.message || reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('🚨 Uncaught Exception:', err.message, err.stack);
+  // НЕ завершаем процесс — пусть сервер и боты продолжают работать
+});
+
 const app = express();
 const httpServer = createServer(app);
 const io = new SocketIO(httpServer, {

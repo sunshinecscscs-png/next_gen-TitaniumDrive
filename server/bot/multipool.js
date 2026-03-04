@@ -32,13 +32,21 @@ export function loadSites() {
   for (let i = 0; i < sites.length; i++) {
     if (!pools.has(i)) {
       const { db } = sites[i];
-      pools.set(i, new pg.Pool({
+      const p = new pg.Pool({
         host: db.host,
         port: Number(db.port) || 5432,
         database: db.database,
         user: db.user,
         password: db.password,
-      }));
+        connectionTimeoutMillis: 10000,
+        idleTimeoutMillis: 30000,
+        max: 5,
+      });
+      // Ловим ошибки пула, чтобы не крашить процесс
+      p.on('error', (err) => {
+        console.error(`[MultiPool] Ошибка пула «${sites[i].name}»:`, err.message);
+      });
+      pools.set(i, p);
     }
   }
 
