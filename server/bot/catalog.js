@@ -296,14 +296,16 @@ export function startCatalogBot() {
     const adminIds = getAdminIds();
     for (const adminId of adminIds) {
       try {
+        const userLink = username || `<a href="tg://user?id=${userId}">${name || 'Клиент'}</a>`;
         await catalogBot.telegram.sendMessage(adminId,
           `👩 <b>Запрос на менеджера!</b>\n\n` +
-          `👤 ${name} ${username}\n` +
+          `👤 ${userLink}\n` +
           `🆔 Telegram ID: ${userId}`,
           {
             parse_mode: 'HTML',
             ...Markup.inlineKeyboard([
               [Markup.button.callback('✉️ Ответить клиенту', `chat:${userId}`)],
+              [Markup.button.url('💬 Написать в личку', `tg://user?id=${userId}`)],
             ]),
           }
         );
@@ -434,15 +436,17 @@ export function startCatalogBot() {
       const adminIds = getAdminIds();
       for (const adminId of adminIds) {
         try {
+          const userLink = username || `<a href="tg://user?id=${userId}">${name || 'Клиент'}</a>`;
           await catalogBot.telegram.sendMessage(adminId,
             `🔔 <b>Новая заявка на заказ!</b>\n\n` +
             `🚗 ${carName} (ID: ${carId})\n` +
-            `👤 ${name} ${username}\n` +
+            `👤 ${userLink}\n` +
             `🆔 Telegram ID: ${userId}`,
             {
               parse_mode: 'HTML',
               ...Markup.inlineKeyboard([
                 [Markup.button.callback('✉️ Ответить клиенту', `chat:${userId}`)],
+                [Markup.button.url('💬 Написать в личку', `tg://user?id=${userId}`)],
                 [Markup.button.url('🚗 Посмотреть авто', `${siteUrl()}/car/${carId}`)],
               ]),
             }
@@ -613,15 +617,17 @@ export function startCatalogBot() {
       const adminIds = getAdminIds();
       for (const adminId of adminIds) {
         try {
+          const userLink = username || `<a href="tg://user?id=${userId}">${name || 'Клиент'}</a>`;
           await catalogBot.telegram.sendMessage(adminId,
             `📞 <b>Новый номер телефона!</b>\n\n` +
             `📱 ${text}\n` +
-            `👤 ${name} ${username}\n` +
+            `👤 ${userLink}\n` +
             `🆔 Telegram ID: ${userId}`,
             {
               parse_mode: 'HTML',
               ...Markup.inlineKeyboard([
                 [Markup.button.callback('✉️ Ответить клиенту', `chat:${userId}`)],
+                [Markup.button.url('💬 Написать в личку', `tg://user?id=${userId}`)],
               ]),
             }
           );
