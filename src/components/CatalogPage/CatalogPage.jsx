@@ -9,6 +9,7 @@ import CallbackModal from '../CallbackModal/CallbackModal';
 import { placeOrder } from '../../api/orders';
 import { submitCallbackRequest } from '../../api/callbackRequests';
 import { formatPhone, handlePhoneInput } from '../../utils/phoneFormat';
+import { isMoscowWorkingHours } from '../../utils/workHours';
 import Header from '../Header/Header';
 import Footer from '../Footer/Footer';
 
