@@ -423,6 +423,8 @@ export async function parseMobileDe(url, opts = {}) {
       airbags: mapped.airbags || null,
       climate: mapped.climate || null,
       env_sticker: mapped.env_sticker || null,
+      // Оригинальные CDN-ссылки (для сохранения на удалённых сайтах)
+      imageUrls: raw.imageUrls || [],
     };
 
     console.log(`[Parser] ✔ Результат: ${result.name}, ${result.price}€, ${localImages.length} фото`);

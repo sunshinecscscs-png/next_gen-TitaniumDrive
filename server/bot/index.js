@@ -1,21 +1,25 @@
 /**
- * Telegram Bot для автопарсера
- * 
- * Админ кидает ссылку → бот парсит → создаёт объявление.
- * 
+ * Telegram Bot для автопарсера — МУЛЬТИ-САЙТ
+ *
+ * Админ кидает ссылку → бот парсит → админ выбирает сайты → объявление создаётся.
+ *
+ * Конфигурация сайтов — в bot/sites.json
+ *
  * ENV variables:
  *   TELEGRAM_BOT_TOKEN  — токен от @BotFather
- *   TELEGRAM_ADMIN_IDS  — список Telegram user IDs через запятую (только они могут парсить)
- *   API_BASE_URL        — URL вашего сервера (по умолчанию http://localhost:4000)
- *   ADMIN_JWT_TOKEN     — JWT токен админа для API-вызовов
+ *   TELEGRAM_ADMIN_IDS  — список Telegram user IDs через запятую
+ *   API_BASE_URL        — URL текущего сервера (по умолчанию http://localhost:4000)
  */
 
-import { Telegraf } from 'telegraf';
+import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
 import parseMobileDe from '../parser/mobilede.js';
-import pool from '../db/pool.js';
+import { loadSites, getSites, getPool, reloadSites } from './multipool.js';
 
 dotenv.config();
+
+/* ── Загружаем конфигурацию сайтов ── */
+loadSites();
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
@@ -25,11 +29,27 @@ const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_IDS || '')
   .map(id => Number(id.trim()))
   .filter(Boolean);
 
+/* ── Сессии парсинга (для мультивыбора сайтов) ── */
+const parseSessions = new Map(); // sessionId → { carData, selected, url, createdAt }
+let nextSessionId = 1;
+
+// Очистка старых сессий (>30 мин)
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, session] of parseSessions) {
+    if (now - session.createdAt > 30 * 60 * 1000) {
+      parseSessions.delete(id);
+    }
+  }
+}, 5 * 60 * 1000);
+
 /* ── Middleware: проверка доступа ── */
 function isAdmin(ctx) {
-  if (ADMIN_IDS.length === 0) return true; // Если не настроено — пускаем всех
+  if (ADMIN_IDS.length === 0) return true;
   return ADMIN_IDS.includes(ctx.from?.id);
 }
+
+/* ═══════════════════ Команды ═══════════════════ */
 
 /* ── /start ── */
 bot.start((ctx) => {
@@ -37,17 +57,23 @@ bot.start((ctx) => {
     return ctx.reply('⛔ У вас нет доступа к этому боту.');
   }
 
+  const sites = getSites();
+  const sitesList = sites.length
+    ? sites.map(s => `  ${s.emoji} ${s.name}`).join('\n')
+    : '  ⚠️ Не настроены (отредактируйте sites.json)';
+
   ctx.reply(
-    `🚗 *AutoSite Parser Bot*\n\n` +
-    `Отправь мне ссылку на объявление с mobile\\.de и я создам объявление на сайте\\.\n\n` +
-    `*Поддерживаемые сайты:*\n` +
-    `• mobile\\.de\n\n` +
-    `*Команды:*\n` +
+    `🚗 <b>AutoSite Parser Bot</b> (мульти-сайт)\n\n` +
+    `Отправь ссылку на объявление с mobile.de — бот спарсит и предложит выбрать, на какие сайты сохранить.\n\n` +
+    `<b>Подключённые сайты:</b>\n${sitesList}\n\n` +
+    `<b>Команды:</b>\n` +
     `/start — Приветствие\n` +
     `/help — Помощь\n` +
-    `/status — Статус бота\n` +
-    `/stats — Статистика объявлений`,
-    { parse_mode: 'MarkdownV2' }
+    `/sites — Список сайтов\n` +
+    `/stats — Статистика по сайтам\n` +
+    `/reload — Перезагрузить sites.json\n` +
+    `/status — Статус бота`,
+    { parse_mode: 'HTML' }
   );
 });
 
@@ -55,48 +81,103 @@ bot.start((ctx) => {
 bot.help((ctx) => {
   if (!isAdmin(ctx)) return;
   ctx.reply(
-    '📖 Как пользоваться:\n\n' +
+    '📖 <b>Как пользоваться:</b>\n\n' +
     '1. Скопируй ссылку на объявление с mobile.de\n' +
     '2. Отправь её в этот чат\n' +
     '3. Бот распарсит данные и скачает фото\n' +
-    '4. Объявление появится на сайте (сначала скрыто)\n' +
-    '5. Зайди в админку и опубликуй\n\n' +
-    '💡 Можно кидать несколько ссылок — каждая обработается отдельно.'
+    '4. Выбери сайты для сохранения (✅/⬜)\n' +
+    '5. Нажми «Сохранить» — объявление появится на выбранных сайтах\n' +
+    '6. Зайди в админку каждого сайта и заполни цену, пробег и т.д.\n\n' +
+    '💡 Можно кидать несколько ссылок — каждая обработается отдельно.\n' +
+    '💡 Конфигурация сайтов — в файле <code>bot/sites.json</code>',
+    { parse_mode: 'HTML' }
   );
 });
 
 /* ── /status ── */
 bot.command('status', (ctx) => {
   if (!isAdmin(ctx)) return;
-  ctx.reply(`✅ Бот работает\n🆔 Ваш ID: ${ctx.from.id}`);
+  const sites = getSites();
+  ctx.reply(
+    `✅ Бот работает\n` +
+    `🆔 Ваш ID: ${ctx.from.id}\n` +
+    `🌐 Сайтов подключено: ${sites.length}`
+  );
 });
 
-/* ── /stats ── */
+/* ── /sites — список подключённых сайтов с проверкой доступности БД ── */
+bot.command('sites', async (ctx) => {
+  if (!isAdmin(ctx)) return;
+  const sites = getSites();
+
+  if (sites.length === 0) {
+    return ctx.reply(
+      '⚠️ Нет подключённых сайтов.\n\n' +
+      'Отредактируйте файл <code>bot/sites.json</code> и выполните /reload',
+      { parse_mode: 'HTML' }
+    );
+  }
+
+  let text = '🌐 <b>Подключённые сайты:</b>\n\n';
+  for (let i = 0; i < sites.length; i++) {
+    const s = sites[i];
+    let dbStatus = '🔴';
+    try {
+      await getPool(i).query('SELECT 1');
+      dbStatus = '🟢';
+    } catch { /* БД недоступна */ }
+
+    text += `${s.emoji} <b>${s.name}</b>\n`;
+    text += `  БД: ${dbStatus} ${s.db.host}:${s.db.port}/${s.db.database}\n`;
+    text += `  🌐 ${s.siteUrl}\n\n`;
+  }
+
+  ctx.reply(text, { parse_mode: 'HTML' });
+});
+
+/* ── /reload — перезагрузить sites.json ── */
+bot.command('reload', (ctx) => {
+  if (!isAdmin(ctx)) return;
+  const sites = reloadSites();
+  const list = sites.map(s => `  ${s.emoji} ${s.name}`).join('\n') || '  (пусто)';
+  ctx.reply(`🔄 Конфигурация перезагружена!\n\nСайтов: ${sites.length}\n${list}`);
+});
+
+/* ── /stats — статистика по всем сайтам ── */
 bot.command('stats', async (ctx) => {
   if (!isAdmin(ctx)) return;
-  try {
-    const { rows } = await pool.query(`
-      SELECT 
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE is_published = true)::int AS published,
-        COUNT(*) FILTER (WHERE is_published = false)::int AS hidden,
-        COUNT(*) FILTER (WHERE source_url IS NOT NULL)::int AS parsed
-      FROM cars
-    `);
-    const s = rows[0];
-    ctx.reply(
-      `📊 Статистика:\n\n` +
-      `Всего объявлений: ${s.total}\n` +
-      `Опубликовано: ${s.published}\n` +
-      `Скрыто: ${s.hidden}\n` +
-      `Создано парсером: ${s.parsed}`
-    );
-  } catch (err) {
-    ctx.reply(`❌ Ошибка получения статистики: ${err.message}`);
+  const sites = getSites();
+
+  if (sites.length === 0) {
+    return ctx.reply('⚠️ Нет подключённых сайтов. Настройте sites.json');
   }
+
+  let text = '📊 <b>Статистика по сайтам:</b>\n';
+
+  for (let i = 0; i < sites.length; i++) {
+    const site = sites[i];
+    try {
+      const { rows } = await getPool(i).query(`
+        SELECT
+          COUNT(*)::int AS total,
+          COUNT(*) FILTER (WHERE is_published = true)::int AS published,
+          COUNT(*) FILTER (WHERE is_published = false)::int AS hidden,
+          COUNT(*) FILTER (WHERE source_url IS NOT NULL)::int AS parsed
+        FROM cars
+      `);
+      const s = rows[0];
+      text += `\n${site.emoji} <b>${site.name}:</b>\n`;
+      text += `  Всего: ${s.total} | Опубл.: ${s.published} | Скрыто: ${s.hidden} | Парсер: ${s.parsed}\n`;
+    } catch (err) {
+      text += `\n${site.emoji} <b>${site.name}:</b> ❌ ${err.message}\n`;
+    }
+  }
+
+  ctx.reply(text, { parse_mode: 'HTML' });
 });
 
-/* ── Обработка ссылок ── */
+/* ═══════════════════ Обработка ссылок ═══════════════════ */
+
 bot.on('text', async (ctx) => {
   if (!isAdmin(ctx)) {
     return ctx.reply('⛔ У вас нет доступа.');
@@ -104,13 +185,11 @@ bot.on('text', async (ctx) => {
 
   const text = ctx.message.text.trim();
 
-  // Извлекаем все URL из сообщения
   const urlRegex = /https?:\/\/[^\s]+mobile\.de[^\s]+/gi;
   const urls = text.match(urlRegex);
 
   if (!urls || urls.length === 0) {
-    // Может быть просто текст — игнорируем
-    if (text.startsWith('/')) return; // Ignore unknown commands
+    if (text.startsWith('/')) return;
     return ctx.reply(
       '🔗 Отправь ссылку с mobile.de\n\n' +
       'Пример: https://www.mobile.de/ru/.../подробности.html?id=443293823...'
@@ -123,7 +202,7 @@ bot.on('text', async (ctx) => {
 });
 
 /**
- * Обрабатывает одну ссылку
+ * Парсит ссылку и показывает выбор сайтов (или сохраняет сразу, если сайт один)
  */
 async function processUrl(ctx, url) {
   const statusMsg = await ctx.reply(`⏳ Парсинг...\n🔗 ${truncateUrl(url)}`);
@@ -141,46 +220,53 @@ async function processUrl(ctx, url) {
       return;
     }
 
-    // Обновляем статус
-    await ctx.telegram.editMessageText(
-      ctx.chat.id, statusMsg.message_id, null,
-      `⏳ Сохранение в базу данных...\n🚗 ${carData.name}`
-    );
-
-    // Сохраняем в БД (is_published = false, price/mileage/body_type/condition/description — пустые)
-    const savedCar = await saveCarToDb(carData);
-
-    // Формируем отчёт
-    const report = formatReport(savedCar, carData);
-
-    // Ссылка на редактирование в админке
-    const siteUrl = (process.env.SITE_URL || 'http://localhost:5173').replace(/\/+$/, '');
-    const editLink = `${siteUrl}/?admin=True&edit_car=${savedCar.id}`;
-
-    // Удаляем промежуточное сообщение
     await ctx.telegram.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => {});
 
-    // Текст сообщения с ссылкой
-    const messageText = report +
-      `\n\n� <a href="${editLink}">Редактировать в админке</a>`;
+    const sites = getSites();
 
-    // Отправляем фото + описание
+    // ═══ 0 сайтов — ошибка ═══
+    if (sites.length === 0) {
+      return ctx.reply(
+        `✅ Спарсено: <b>${carData.name}</b>\n\n` +
+        `⚠️ Нет подключённых сайтов для сохранения!\n` +
+        `Настройте <code>bot/sites.json</code> и выполните /reload`,
+        { parse_mode: 'HTML' }
+      );
+    }
+
+    // ═══ 1 сайт — сохраняем сразу, без UI выбора ═══
+    if (sites.length === 1) {
+      return await saveToSingleSite(ctx, carData, 0);
+    }
+
+    // ═══ 2+ сайтов — показываем мультивыбор ═══
+    const sessionId = nextSessionId++;
+    const session = {
+      carData,
+      selected: new Set(sites.map((_, i) => i)), // все выбраны по умолчанию
+      url,
+      createdAt: Date.now(),
+    };
+    parseSessions.set(sessionId, session);
+
+    // Превью авто (фото + краткая информация)
+    const previewText = buildPreview(carData);
     if (carData.image) {
       try {
-        const imgUrl = carData.image.startsWith('http')
-          ? carData.image
-          : `${process.env.API_BASE_URL || 'http://localhost:4000'}${carData.image}`;
-
-        await ctx.replyWithPhoto(
-          { url: imgUrl },
-          { caption: messageText, parse_mode: 'HTML' }
-        );
+        const imgUrl = resolveImageUrl(carData.image);
+        await ctx.replyWithPhoto({ url: imgUrl }, { caption: previewText, parse_mode: 'HTML' });
       } catch {
-        await ctx.reply(messageText, { parse_mode: 'HTML' });
+        await ctx.reply(previewText, { parse_mode: 'HTML' });
       }
     } else {
-      await ctx.reply(messageText, { parse_mode: 'HTML' });
+      await ctx.reply(previewText, { parse_mode: 'HTML' });
     }
+
+    // Клавиатура выбора сайтов
+    await ctx.reply(
+      buildSelectorText(session),
+      { parse_mode: 'HTML', ...buildSelectorKeyboard(sessionId, session) }
+    );
 
   } catch (err) {
     console.error('[Bot] Parse error:', err);
@@ -191,11 +277,215 @@ async function processUrl(ctx, url) {
   }
 }
 
+/* ═══════════════════ Мультивыбор: Action Handlers ═══════════════════ */
+
+/* Переключение чекбокса сайта */
+bot.action(/^st:(\d+):(\d+)$/, async (ctx) => {
+  const sessionId = Number(ctx.match[1]);
+  const siteIdx = Number(ctx.match[2]);
+  const session = parseSessions.get(sessionId);
+  if (!session) return ctx.answerCbQuery('⏰ Сессия истекла, отправьте ссылку заново');
+
+  if (session.selected.has(siteIdx)) {
+    session.selected.delete(siteIdx);
+  } else {
+    session.selected.add(siteIdx);
+  }
+
+  await ctx.answerCbQuery();
+  return ctx.editMessageText(
+    buildSelectorText(session),
+    { parse_mode: 'HTML', ...buildSelectorKeyboard(sessionId, session) }
+  );
+});
+
+/* Выбрать все / снять все */
+bot.action(/^sa:(\d+)$/, async (ctx) => {
+  const sessionId = Number(ctx.match[1]);
+  const session = parseSessions.get(sessionId);
+  if (!session) return ctx.answerCbQuery('⏰ Сессия истекла');
+
+  const sites = getSites();
+  if (session.selected.size === sites.length) {
+    session.selected.clear();
+  } else {
+    for (let i = 0; i < sites.length; i++) session.selected.add(i);
+  }
+
+  await ctx.answerCbQuery();
+  return ctx.editMessageText(
+    buildSelectorText(session),
+    { parse_mode: 'HTML', ...buildSelectorKeyboard(sessionId, session) }
+  );
+});
+
+/* Подтвердить — сохранить на выбранные сайты */
+bot.action(/^sc:(\d+)$/, async (ctx) => {
+  const sessionId = Number(ctx.match[1]);
+  const session = parseSessions.get(sessionId);
+  if (!session) return ctx.answerCbQuery('⏰ Сессия истекла');
+
+  if (session.selected.size === 0) {
+    return ctx.answerCbQuery('⚠️ Выберите хотя бы один сайт!');
+  }
+
+  await ctx.answerCbQuery('💾 Сохранение...');
+  await ctx.deleteMessage().catch(() => {});
+
+  const sites = getSites();
+  const localApiBase = (process.env.API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '');
+
+  for (const siteIdx of session.selected) {
+    const site = sites[siteIdx];
+    const sitePool = getPool(siteIdx);
+
+    try {
+      // Локальный сайт → локальные пути к фото
+      // Удалённый сайт → оригинальные CDN-ссылки (mobile.de)
+      const isLocal = site.apiBaseUrl.replace(/\/+$/, '') === localApiBase;
+
+      let carDataForSite = session.carData;
+      if (!isLocal && session.carData.imageUrls?.length > 0) {
+        carDataForSite = {
+          ...session.carData,
+          image: session.carData.imageUrls[0] || null,
+          image2: session.carData.imageUrls[1] || null,
+          images: session.carData.imageUrls.slice(0, 30),
+        };
+      }
+
+      const savedCar = await saveCarToDb(carDataForSite, sitePool);
+      const report = formatReport(savedCar, session.carData);
+      const editLink = `${site.siteUrl.replace(/\/+$/, '')}/?admin=True&edit_car=${savedCar.id}`;
+
+      const messageText =
+        `${site.emoji} <b>${site.name}</b>\n\n` +
+        report +
+        `\n\n🔗 <a href="${editLink}">Редактировать в админке</a>`;
+
+      if (session.carData.image) {
+        try {
+          const imgUrl = resolveImageUrl(session.carData.image);
+          await ctx.replyWithPhoto({ url: imgUrl }, { caption: messageText, parse_mode: 'HTML' });
+        } catch {
+          await ctx.reply(messageText, { parse_mode: 'HTML' });
+        }
+      } else {
+        await ctx.reply(messageText, { parse_mode: 'HTML' });
+      }
+    } catch (err) {
+      console.error(`[Bot] Save error (${site.name}):`, err);
+      await ctx.reply(
+        `${site.emoji} <b>${site.name}</b> — ❌ Ошибка:\n<code>${err.message}</code>`,
+        { parse_mode: 'HTML' }
+      );
+    }
+  }
+
+  parseSessions.delete(sessionId);
+});
+
+/* Отмена */
+bot.action(/^sx:(\d+)$/, async (ctx) => {
+  parseSessions.delete(Number(ctx.match[1]));
+  await ctx.answerCbQuery('Отменено');
+  return ctx.editMessageText('❌ Сохранение отменено.');
+});
+
+/* ═══════════════════ Сохранение на один сайт (без выбора) ═══════════════════ */
+
+async function saveToSingleSite(ctx, carData, siteIdx) {
+  const sites = getSites();
+  const site = sites[siteIdx];
+  const sitePool = getPool(siteIdx);
+
+  const statusMsg = await ctx.reply(`⏳ Сохранение на ${site.emoji} ${site.name}...`);
+
+  try {
+    const savedCar = await saveCarToDb(carData, sitePool);
+    const report = formatReport(savedCar, carData);
+    const editLink = `${site.siteUrl.replace(/\/+$/, '')}/?admin=True&edit_car=${savedCar.id}`;
+
+    await ctx.telegram.deleteMessage(ctx.chat.id, statusMsg.message_id).catch(() => {});
+
+    const messageText =
+      `${site.emoji} <b>${site.name}</b>\n\n` +
+      report +
+      `\n\n🔗 <a href="${editLink}">Редактировать в админке</a>`;
+
+    if (carData.image) {
+      try {
+        const imgUrl = resolveImageUrl(carData.image);
+        await ctx.replyWithPhoto({ url: imgUrl }, { caption: messageText, parse_mode: 'HTML' });
+      } catch {
+        await ctx.reply(messageText, { parse_mode: 'HTML' });
+      }
+    } else {
+      await ctx.reply(messageText, { parse_mode: 'HTML' });
+    }
+  } catch (err) {
+    console.error(`[Bot] Save error (${site.name}):`, err);
+    await ctx.telegram.editMessageText(
+      ctx.chat.id, statusMsg.message_id, null,
+      `❌ Ошибка сохранения на ${site.name}:\n${err.message}`
+    ).catch(() => {});
+  }
+}
+
+/* ═══════════════════ UI Builders ═══════════════════ */
+
+function buildPreview(carData) {
+  const lines = [`<b>🚗 ${carData.name || 'Без названия'}</b>`, ''];
+  if (carData.year) lines.push(`📅 Год: ${carData.year}`);
+  if (carData.fuel) lines.push(`⛽ Топливо: ${carData.fuel}`);
+  if (carData.transmission) lines.push(`⚙️ КПП: ${carData.transmission}`);
+  if (carData.power) lines.push(`💪 Мощность: ${carData.power}`);
+  if (carData.engine) lines.push(`🔧 Двигатель: ${carData.engine}`);
+  if (carData.drive) lines.push(`🔄 Привод: ${carData.drive}`);
+  const imgCount = carData.images?.length || 0;
+  const featCount = carData.features?.length || 0;
+  lines.push('');
+  lines.push(`📸 Фото: ${imgCount}`);
+  if (featCount > 0) lines.push(`✅ Опций: ${featCount}`);
+  return lines.join('\n');
+}
+
+function buildSelectorText(session) {
+  const sites = getSites();
+  const carName = session.carData.name || 'Без названия';
+  const selected = session.selected.size;
+  return `📋 <b>Выберите сайты для сохранения:</b>\n\n` +
+    `🚗 ${carName}\n` +
+    `Выбрано: ${selected}/${sites.length}`;
+}
+
+function buildSelectorKeyboard(sessionId, session) {
+  const sites = getSites();
+  const buttons = [];
+
+  for (let i = 0; i < sites.length; i++) {
+    const site = sites[i];
+    const check = session.selected.has(i) ? '✅' : '⬜';
+    buttons.push([
+      Markup.button.callback(`${check} ${site.emoji} ${site.name}`, `st:${sessionId}:${i}`)
+    ]);
+  }
+
+  const allSelected = session.selected.size === sites.length;
+  buttons.push([
+    Markup.button.callback(allSelected ? '🔘 Снять все' : '🔘 Выбрать все', `sa:${sessionId}`),
+  ]);
+
+  buttons.push([
+    Markup.button.callback(`💾 Сохранить (${session.selected.size})`, `sc:${sessionId}`),
+    Markup.button.callback('❌ Отмена', `sx:${sessionId}`),
+  ]);
+
+  return Markup.inlineKeyboard(buttons);
+}
+
 /* ═══════════════════ DB ═══════════════════ */
 
-/**
- * Замена символов, которых нет в WIN1251, на ближайшие аналоги
- */
 const WIN1251_REPLACE = {
   '\u00f6': 'o', '\u00d6': 'O', '\u00e4': 'a', '\u00c4': 'A', '\u00fc': 'u', '\u00dc': 'U', '\u00df': 'ss',
   '\u00e9': 'e', '\u00c9': 'E', '\u00e8': 'e', '\u00c8': 'E', '\u00ea': 'e', '\u00ca': 'E', '\u00eb': 'e',
@@ -214,7 +504,6 @@ function sanitizeWin1251(str) {
   for (const [char, replacement] of Object.entries(WIN1251_REPLACE)) {
     result = result.replaceAll(char, replacement);
   }
-  // Убираем оставшиеся символы вне WIN1251 (ASCII + кириллица)
   result = result.replace(/[^\x00-\x7F\u0400-\u04FF\u2116€₽№°²³±]/g, '');
   return result;
 }
@@ -233,12 +522,17 @@ function sanitizeData(data) {
   return clean;
 }
 
-async function saveCarToDb(rawData) {
+/**
+ * Сохраняет авто в БД конкретного сайта
+ * @param {object} rawData — данные авто
+ * @param {pg.Pool} targetPool — пул БД целевого сайта
+ */
+async function saveCarToDb(rawData, targetPool) {
   const data = sanitizeData(rawData);
   const imagesJson = JSON.stringify(Array.isArray(data.images) ? data.images.slice(0, 30) : []);
   const featuresJson = sanitizeWin1251(JSON.stringify(Array.isArray(data.features) ? data.features : []));
 
-  const { rows } = await pool.query(
+  const { rows } = await targetPool.query(
     `INSERT INTO cars (
       name, spec, price, old_price, condition, brand, model, year,
       body_type, fuel, drive, transmission, engine, power,
@@ -268,7 +562,14 @@ async function saveCarToDb(rawData) {
   return rows[0];
 }
 
-/* ═══════════════════ Formatting ═══════════════════ */
+/* ═══════════════════ Helpers ═══════════════════ */
+
+function resolveImageUrl(src) {
+  if (!src) return null;
+  if (src.startsWith('http')) return src;
+  const base = (process.env.API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '');
+  return `${base}${src}`;
+}
 
 function formatReport(car, parsed) {
   const lines = [
@@ -276,7 +577,6 @@ function formatReport(car, parsed) {
     '',
   ];
 
-  // Спарсенные данные
   if (car.year) lines.push(`📅 Год: ${car.year}`);
   if (car.fuel) lines.push(`⛽ Топливо: ${car.fuel}`);
   if (car.transmission) lines.push(`⚙️ КПП: ${car.transmission}`);
@@ -294,7 +594,6 @@ function formatReport(car, parsed) {
   lines.push(`🆔 ID: ${car.id}`);
   lines.push(`👁 Статус: <b>${car.is_published ? 'Опубликовано' : 'Скрыто'}</b>`);
 
-  // Поля для ручного заполнения
   lines.push('');
   lines.push(`⚠️ <b>Заполните вручную:</b>`);
   lines.push(`  • 💰 Цена`);
@@ -305,14 +604,6 @@ function formatReport(car, parsed) {
   lines.push(`  • 📝 Описание`);
 
   return lines.join('\n');
-}
-
-function formatPrice(price) {
-  return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-}
-
-function formatNumber(num) {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
 function truncateUrl(url, max = 60) {
@@ -329,10 +620,9 @@ export function startBot() {
   }
 
   bot.launch()
-    .then(() => console.log('🤖 Telegram бот запущен'))
+    .then(() => console.log('🤖 Telegram бот запущен (мульти-сайт)'))
     .catch((err) => console.error('❌ Ошибка запуска бота:', err.message));
 
-  // Graceful stop
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));
 

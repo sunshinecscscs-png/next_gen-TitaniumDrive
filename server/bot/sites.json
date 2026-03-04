@@ -1,0 +1,15 @@
+[
+  {
+    "name": "TitaniumDrive",
+    "emoji": "🏎",
+    "db": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "database": "autosite",
+      "user": "postgres",
+      "password": "Sun1213Shine"
+    },
+    "siteUrl": "https://titaniumdrive.ru",
+    "apiBaseUrl": "http://localhost:4000"
+  }
+]
