@@ -755,8 +755,8 @@ export default function CarDetailPage({ onAuthOpen }) {
             </div>
             <h3 className="buy-modal__title">Заказ оформлен!</h3>
             <p className="buy-modal__text">{isMoscowWorkingHours()
-              ? 'Менеджер свяжется с вами в течение 10 минут. Информация о заказе отправлена на вашу почту.'
-              : 'Рабочий день уже завершён — менеджер свяжется с вами завтра. Информация о заказе отправлена на вашу почту.'}</p>
+              ? 'Менеджер свяжется с вами в течение 10 минут.'
+              : 'Рабочий день уже завершён — менеджер свяжется с вами завтра.'}</p>
             {buyTargetCar && (
               <div className="buy-modal__car-preview">
                 {buyTargetCar.image && <img src={buyTargetCar.image} alt={buyTargetCar.name} />}

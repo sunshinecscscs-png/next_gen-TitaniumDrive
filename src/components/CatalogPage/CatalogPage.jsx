@@ -1061,8 +1061,8 @@ function CatalogPage({ onAuthOpen }) {
             </div>
             <h3 className="buy-modal__title">Заказ оформлен!</h3>
             <p className="buy-modal__text">{isMoscowWorkingHours()
-              ? 'Менеджер свяжется с вами в течение 10 минут. Письмо с подтверждением отправлено на вашу почту.'
-              : 'Рабочий день уже завершён — менеджер свяжется с вами завтра. Письмо с подтверждением отправлено на вашу почту.'}</p>
+              ? 'Менеджер свяжется с вами в течение 10 минут.'
+              : 'Рабочий день уже завершён — менеджер свяжется с вами завтра.'}</p>
             {buyTargetCar && (
               <div className="buy-modal__car-preview">
                 {buyTargetCar.image && <img src={buyTargetCar.image} alt={buyTargetCar.name} />}
