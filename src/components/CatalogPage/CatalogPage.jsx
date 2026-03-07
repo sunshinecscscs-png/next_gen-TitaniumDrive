@@ -165,7 +165,6 @@ function CatalogPage({ onAuthOpen }) {
   const [favIds, setFavIds] = useState(new Set());
   /* Buy modals */
   const [buyContactOpen, setBuyContactOpen] = useState(false);
-  const [buySuccessOpen, setBuySuccessOpen] = useState(false);
   const [buyPhone, setBuyPhone] = useState('');
   const [buySubmitting, setBuySubmitting] = useState(false);
   const [buyTargetCar, setBuyTargetCar] = useState(null);
@@ -345,8 +344,8 @@ function CatalogPage({ onAuthOpen }) {
     try {
       await placeOrder({ car_id: orderCar.id, phone });
       setBuyContactOpen(false);
-      setBuySuccessOpen(true);
       window.dispatchEvent(new Event('notifications-changed'));
+      navigate('/success');
     } catch (err) {
       alert(err.message);
     } finally {
@@ -374,7 +373,7 @@ function CatalogPage({ onAuthOpen }) {
         car_name: buyTargetCar.name,
       });
       setBuyGuestOpen(false);
-      setBuySuccessOpen(true);
+      navigate('/success');
     } catch (err) {
       alert(err.message);
     } finally {
@@ -1042,37 +1041,6 @@ function CatalogPage({ onAuthOpen }) {
               <input className="buy-modal__input" type="tel" placeholder="+7 (___) ___-__-__" value={buyPhone} onChange={handlePhoneInput(setBuyPhone)} required autoFocus />
               <button className="buy-modal__submit" type="submit" disabled={buySubmitting}>{buySubmitting ? 'Оформляем...' : 'Оформить заказ'}</button>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* Buy — success modal */}
-      {buySuccessOpen && (
-        <div className="buy-modal-overlay" onClick={() => setBuySuccessOpen(false)}>
-          <div className="buy-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="buy-modal__close" onClick={() => setBuySuccessOpen(false)}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-            <div className="buy-modal__icon buy-modal__icon--success">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
-            </div>
-            <h3 className="buy-modal__title">Заказ оформлен!</h3>
-            <p className="buy-modal__text">{isMoscowWorkingHours()
-              ? 'Менеджер свяжется с вами в течение 10 минут.'
-              : 'Рабочий день уже завершён — менеджер свяжется с вами завтра.'}</p>
-            {buyTargetCar && (
-              <div className="buy-modal__car-preview">
-                {buyTargetCar.image && <img src={buyTargetCar.image} alt={buyTargetCar.name} />}
-                <div>
-                  <span className="buy-modal__car-name">{buyTargetCar.name}</span>
-                  <span className="buy-modal__car-price">{fmtPrice(buyTargetCar.price?.toString().replace(/[^\d]/g, '') || buyTargetCar.price)} ₽</span>
-                </div>
-              </div>
-            )}
-            <button className="buy-modal__submit" onClick={() => setBuySuccessOpen(false)}>Понятно</button>
           </div>
         </div>
       )}

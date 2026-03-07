@@ -14,6 +14,7 @@ import ViewedCarsPage from './components/ViewedCarsPage/ViewedCarsPage'
 import MyRequestsPage from './components/MyRequestsPage/MyRequestsPage'
 import MyOrdersPage from './components/MyOrdersPage/MyOrdersPage'
 import AdminPanel from './components/AdminPanel/AdminPanel'
+import SuccessPage from './components/SuccessPage/SuccessPage'
 import AuthModal from './components/AuthModal/AuthModal'
 import ChatWidget from './components/ChatWidget/ChatWidget'
 import MobileNav from './components/MobileNav/MobileNav'
@@ -45,6 +46,7 @@ function App() {
         <Route path="/cabinet/viewed" element={<ViewedCarsPage onAuthOpen={openAuth} />} />
         <Route path="/cabinet/requests" element={<MyRequestsPage onAuthOpen={openAuth} />} />
         <Route path="/cabinet/orders" element={<MyOrdersPage onAuthOpen={openAuth} />} />
+        <Route path="/success" element={<SuccessPage onAuthOpen={openAuth} />} />
       </Routes>
       <ChatWidget />
       <MobileNav onAuthOpen={openAuth} />

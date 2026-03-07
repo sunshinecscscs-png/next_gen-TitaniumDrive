@@ -1,12 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { submitCallbackRequest } from '../../api/callbackRequests.js';
-import { isMoscowWorkingHours } from '../../utils/workHours';
 import './SearchSection.css';
 
 function SearchSection() {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const formatPhone = (value) => {
@@ -42,19 +42,13 @@ function SearchSection() {
         name: name.trim(),
         phone: phone.trim(),
       });
-      setSuccess(true);
+      navigate('/success');
     } catch (err) {
       console.error(err);
-      setSuccess(true);
+      navigate('/success');
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleClose = () => {
-    setSuccess(false);
-    setName('');
-    setPhone('');
   };
 
   return (
@@ -97,29 +91,6 @@ function SearchSection() {
           </button>
         </form>
       </div>
-
-      {/* Success overlay */}
-      {success && (
-        <div className="search-success-overlay" onClick={handleClose}>
-          <div className="search-success" onClick={(e) => e.stopPropagation()}>
-            <div className="search-success__icon">
-              <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                <circle cx="28" cy="28" r="28" fill="#111"/>
-                <path d="M18 28.5L25 35.5L38 21.5" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <h3 className="search-success__title">Заявка отправлена!</h3>
-            <p className="search-success__text">
-              {isMoscowWorkingHours()
-                ? <>Спасибо, {name}! Наш менеджер свяжется с вами по номеру <strong>{phone}</strong> в течение 10 минут.</>
-                : <>Спасибо, {name}! Рабочий день уже завершён — менеджер свяжется с вами завтра по номеру <strong>{phone}</strong>.</>}
-            </p>
-            <button className="search-success__btn" onClick={handleClose}>
-              Отлично
-            </button>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
