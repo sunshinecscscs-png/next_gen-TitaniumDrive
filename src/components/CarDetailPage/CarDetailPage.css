@@ -772,6 +772,40 @@
   background: #fafafa;
 }
 
+/* Sidebar social icons */
+.car-detail__sidebar-socials {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.car-detail__sidebar-socials-label {
+  font-size: 13px;
+  color: #888;
+}
+
+.car-detail__sidebar-socials-icons {
+  display: flex;
+  gap: 14px;
+}
+
+.car-detail__sidebar-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.car-detail__sidebar-social:hover {
+  color: #555;
+  transform: translateY(-2px);
+}
+
 /* ===== Similar offers ===== */
 .car-detail__similar {
   max-width: 1320px;

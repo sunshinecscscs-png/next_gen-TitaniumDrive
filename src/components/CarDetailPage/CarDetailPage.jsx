@@ -565,6 +565,18 @@ export default function CarDetailPage({ onAuthOpen }) {
 
               <button className="car-detail__btn car-detail__btn--primary" onClick={() => handleBuy(car)}>Приобрести</button>
               <button className="car-detail__btn car-detail__btn--outline" onClick={() => setPhoneModalOpen(true)}>Набрать номер</button>
+
+              <div className="car-detail__sidebar-socials">
+                <span className="car-detail__sidebar-socials-label">Написать менеджеру:</span>
+                <div className="car-detail__sidebar-socials-icons">
+                  <a href="https://t.me/YulliaOfficial" target="_blank" rel="noopener noreferrer" className="car-detail__sidebar-social" aria-label="Telegram">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                  </a>
+                  <a href="https://vk.com/juliaimport" target="_blank" rel="noopener noreferrer" className="car-detail__sidebar-social" aria-label="VK">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M21.547 7h-3.29a.743.743 0 00-.655.392s-1.312 2.416-1.734 3.23C14.734 12.813 14 12.126 14 11.11V7.603A1.104 1.104 0 0012.896 6.5h-2.474a1.982 1.982 0 00-1.75.813s1.255-.204 1.255 1.49c0 .42.022 1.626.04 2.64a.73.73 0 01-1.272.503 21.54 21.54 0 01-2.498-4.543.693.693 0 00-.63-.403H2.66a.742.742 0 00-.677 1.03c1.827 4.203 5.395 8.97 10.036 8.97h1.234a.742.742 0 00.742-.742v-1.135a.743.743 0 01.677-.742c.344-.029.663.18.803.49.577 1.284 1.084 2.13 1.084 2.13a.742.742 0 00.642.37h3.2a.743.743 0 00.666-1.073s-1.166-2.052-1.77-3.177a.741.741 0 01.078-.832C20.903 11.385 22.96 8.67 22.96 8.67A.745.745 0 0021.547 7z"/></svg>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
