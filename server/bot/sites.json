@@ -24,5 +24,18 @@
     },
     "siteUrl": "https://businessauto24.ru",
     "apiBaseUrl": "http://5.129.193.35:4000"
+  },
+  {
+    "name": "MotorwayRF",
+    "emoji": "🚘",
+    "db": {
+      "host": "45.10.43.91",
+      "port": 5432,
+      "database": "autosite_db",
+      "user": "autosite",
+      "password": "pass123"
+    },
+    "siteUrl": "https://motorwayrf.ru",
+    "apiBaseUrl": "http://45.10.43.91:4000"
   }
 ]
