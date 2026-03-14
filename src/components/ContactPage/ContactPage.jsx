@@ -9,7 +9,7 @@ import './ContactPage.css';
 function ContactPage() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState('+7');
   const [email, setEmail] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
   const [topic, setTopic] = useState('');
@@ -19,28 +19,17 @@ function ContactPage() {
 
   const handlePhoneChange = (e) => {
     let raw = e.target.value.replace(/\D/g, '');
-    if (raw.length === 0) { setPhone(''); return; }
-    if (raw.startsWith('375')) {
-      if (raw.length <= 12) {
-        let result = '+375';
-        if (raw.length > 3) result += ' (' + raw.slice(3, 5);
-        if (raw.length >= 5) result += ')';
-        if (raw.length > 5) result += ' ' + raw.slice(5, 8);
-        if (raw.length > 8) result += '-' + raw.slice(8, 10);
-        if (raw.length > 10) result += '-' + raw.slice(10, 12);
-        setPhone(result);
-      }
-    } else {
-      if (!raw.startsWith('7')) raw = '7' + raw;
-      if (raw.length <= 11) {
-        let result = '+7';
-        if (raw.length > 1) result += ' (' + raw.slice(1, 4);
-        if (raw.length >= 4) result += ')';
-        if (raw.length > 4) result += ' ' + raw.slice(4, 7);
-        if (raw.length > 7) result += '-' + raw.slice(7, 9);
-        if (raw.length > 9) result += '-' + raw.slice(9, 11);
-        setPhone(result);
-      }
+    if (!raw.startsWith('7')) raw = '7' + raw;
+    if (raw.length <= 11) {
+      const digits = raw;
+      if (digits.length === 0) { setPhone(''); return; }
+      let result = '+7';
+      if (digits.length > 1) result += ' (' + digits.slice(1, 4);
+      if (digits.length >= 4) result += ')';
+      if (digits.length > 4) result += ' ' + digits.slice(4, 7);
+      if (digits.length > 7) result += '-' + digits.slice(7, 9);
+      if (digits.length > 9) result += '-' + digits.slice(9, 11);
+      setPhone(result);
     }
   };
 
@@ -52,7 +41,7 @@ function ContactPage() {
   };
 
   const phoneDigits = phone.replace(/\D/g, '');
-  const isValid = name.trim().length >= 2 && (phoneDigits.length === 11 || (phoneDigits.startsWith('375') && phoneDigits.length === 12)) && topic && message.trim().length >= 2;
+  const isValid = name.trim().length >= 2 && phoneDigits.length === 11 && topic && message.trim().length >= 2;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,7 +69,7 @@ function ContactPage() {
   const handleReset = () => {
     setSuccess(false);
     setName('');
-    setPhone('');
+    setPhone('+7 ');
     setEmail('');
     setOrderNumber('');
     setTopic('');
@@ -179,7 +168,7 @@ function ContactPage() {
                 <input
                   type="tel"
                   className="contact-page__form-input"
-                  placeholder="+7 / +375"
+                  placeholder="+7 (___) ___-__-__"
                   value={phone}
                   onChange={handlePhoneChange}
                   onKeyDown={handlePhoneKeyDown}

@@ -147,7 +147,7 @@ function WhyUsPage({ onAuthOpen }) {
               <input
                 type="tel"
                 className="whyus-page__cta-input"
-                placeholder="+7 / +375"
+                placeholder="+7 (___) ___-__-__"
                 value={ctaPhone}
                 onChange={handlePhoneInput(setCtaPhone)}
                 onKeyDown={(e) => { if ((e.key === 'Backspace' || e.key === 'Delete') && ctaPhone.length <= 2) e.preventDefault(); }}

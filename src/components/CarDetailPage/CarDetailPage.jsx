@@ -700,7 +700,7 @@ export default function CarDetailPage({ onAuthOpen }) {
             )}
             <form onSubmit={handleGuestBuySubmit} className="buy-modal__form">
               <input type="text" className="buy-modal__input" placeholder="Ваше имя" value={buyGuestName} onChange={e => setBuyGuestName(e.target.value)} autoFocus required />
-              <input type="tel" className="buy-modal__input" placeholder="+7 / +375" value={buyGuestPhone} onChange={handlePhoneInput(setBuyGuestPhone)} required />
+              <input type="tel" className="buy-modal__input" placeholder="+7 (___) ___-__-__" value={buyGuestPhone} onChange={handlePhoneInput(setBuyGuestPhone)} required />
               <button type="submit" className="buy-modal__submit" disabled={buySubmitting}>
                 {buySubmitting ? 'Отправляем...' : 'Оставить заявку'}
               </button>
@@ -736,7 +736,7 @@ export default function CarDetailPage({ onAuthOpen }) {
               <input
                 type="tel"
                 className="buy-modal__input"
-                placeholder="+7 / +375"
+                placeholder="+7 (___) ___-__-__"
                 value={buyPhone}
                 onChange={handlePhoneInput(setBuyPhone)}
                 autoFocus

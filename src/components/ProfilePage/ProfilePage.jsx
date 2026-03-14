@@ -313,7 +313,7 @@ function ProfilePage({ onAuthOpen }) {
             <h3>Контактные данные</h3>
             {error && <div className="profile-edit-modal__error">{error}</div>}
             <label>Телефон</label>
-            <input value={form.phone || ''} onChange={handlePhoneInput((v) => setForm({ ...form, phone: v }))} placeholder="+7 / +375" />
+            <input value={form.phone || ''} onChange={handlePhoneInput((v) => setForm({ ...form, phone: v }))} placeholder="+7 (___) ___-__-__" />
             <label>Адрес</label>
             <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Город, улица, дом" />
             <div className="profile-edit-modal__actions">

@@ -1278,12 +1278,12 @@
     max-width: 360px;
     min-width: unset;
     z-index: 10001;
-    background: #111;
+    background: #fff;
     padding: 0;
     overflow: hidden;
     transform: translateX(-105%);
     transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -1300,16 +1300,16 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 20px 14px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #eee;
     flex-shrink: 0;
-    background: #111;
+    background: #fff;
     z-index: 2;
   }
 
   .catalog-page__sidebar-header-title {
     font-size: 18px;
     font-weight: 700;
-    color: #fff;
+    color: #111;
   }
 
   .catalog-page__sidebar-close {
@@ -1319,16 +1319,16 @@
     align-items: center;
     justify-content: center;
     background: none;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid #eee;
     border-radius: 50%;
-    color: #aaa;
+    color: #555;
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .catalog-page__sidebar-close:hover {
-    border-color: #fff;
-    color: #fff;
+    border-color: #333;
+    color: #111;
   }
 
   /* Scrollable area for filters */
@@ -1343,8 +1343,8 @@
   .catalog-page__sidebar-apply {
     display: block;
     flex-shrink: 0;
-    background: #fff;
-    color: #111;
+    background: #111;
+    color: #fff;
     border: none;
     border-radius: 10px;
     padding: 14px 24px;
@@ -1360,122 +1360,13 @@
   }
 
   .catalog-page__sidebar-apply:hover {
-    background: #ddd;
+    background: #333;
   }
 
   .catalog-filter-block {
     flex: unset;
     min-width: unset;
     width: 100%;
-  }
-
-  /* ── Dark theme overrides for mobile filter drawer ── */
-  .catalog-page__sidebar .catalog-filter-block {
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__title {
-    color: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__title svg {
-    color: #888;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__search {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__search input {
-    color: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__search input::placeholder {
-    color: #666;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__radio,
-  .catalog-page__sidebar .catalog-filter-block__checkbox {
-    color: #ccc;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__radio-mark {
-    border-color: #555;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__radio input:checked + .catalog-filter-block__radio-mark {
-    border-color: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__radio input:checked + .catalog-filter-block__radio-mark::after {
-    background: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__check-mark {
-    border-color: #555;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__checkbox input:checked + .catalog-filter-block__check-mark {
-    border-color: #fff;
-    background: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__checkbox input:checked + .catalog-filter-block__check-mark::after {
-    border-color: #111;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__count {
-    color: #666;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__more {
-    color: #888;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__more:hover {
-    color: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__range-labels {
-    color: #2196F3;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__range-input {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: #fff;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__range-input::placeholder {
-    color: #666;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__show-more-filters {
-    border-color: rgba(255, 255, 255, 0.15);
-    color: #aaa;
-  }
-
-  .catalog-page__sidebar .catalog-filter-block__show-more-filters:hover {
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .catalog-page__sidebar .dual-range__track {
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  .catalog-page__sidebar .dual-range__fill {
-    background: #fff;
-  }
-
-  .catalog-page__sidebar .dual-range__input::-webkit-slider-thumb {
-    background: #111;
-    border-color: #fff;
-  }
-
-  .catalog-page__sidebar .dual-range__input::-moz-range-thumb {
-    background: #111;
-    border-color: #fff;
   }
 
   /* Force list view on mobile */
