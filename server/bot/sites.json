@@ -37,5 +37,18 @@
     },
     "siteUrl": "https://motorwayrf.ru",
     "apiBaseUrl": "http://45.10.43.91:4000"
+  },
+  {
+    "name": "EuropeanMileage",
+    "emoji": "🇪🇺",
+    "db": {
+      "host": "83.147.247.178",
+      "port": 5432,
+      "database": "autosite",
+      "user": "autosite",
+      "password": "pass123"
+    },
+    "siteUrl": "https://europeanmileage.by",
+    "apiBaseUrl": "http://83.147.247.178:4000"
   }
 ]
