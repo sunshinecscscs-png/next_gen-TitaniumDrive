@@ -93,6 +93,13 @@
   margin-top: 4px;
 }
 
+.footer__requisites {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
 .footer__scroll-top {
   position: absolute;
   right: 50px;
@@ -177,6 +184,11 @@
     font-size: 12px;
     line-height: 1.5;
     word-break: break-word;
+  }
+
+  .footer__requisites {
+    font-size: 9px;
+    line-height: 1.6;
   }
 
   .footer__scroll-top {

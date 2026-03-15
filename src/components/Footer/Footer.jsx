@@ -50,6 +50,9 @@ function Footer() {
         </button>
       </div>
 
+      <div className="footer__bottom">
+        <p className="footer__requisites">ОГРН 1236700012262 &nbsp;·&nbsp; ИНН 6700004379 &nbsp;·&nbsp; КПП 670001001 &nbsp;·&nbsp; ОКПО 96798534 &nbsp;·&nbsp; ОКАТО 66401000000 &nbsp;·&nbsp; ОКТМО 66701000001</p>
+      </div>
     </footer>
   );
 }
