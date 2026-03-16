@@ -70,7 +70,7 @@ function Hero() {
       <div className="hero__content">
         <div className="hero__accent-line"></div>
         <h1 className="hero__title">
-          Пригоняем авто из Европы под ключ<br />
+          Пригоняем авто из Европы, Китая, Японии и Кореи под ключ<br />
           <span className="hero__title-highlight">и берём на себя все этапы сделки</span>
         </h1>
         <p className="hero__subtitle">
