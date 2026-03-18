@@ -18,7 +18,7 @@ function requireAdmin(req, res, next) {
 router.get('/', async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
-    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 20));
     const offset = (page - 1) * limit;
 
     const conditions = [];
@@ -220,7 +220,7 @@ router.get('/:id', async (req, res) => {
 router.get('/admin/list', auth, requireAdmin, async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page) || 1);
-    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const limit = Math.min(200, Math.max(1, Number(req.query.limit) || 20));
     const offset = (page - 1) * limit;
     const search = req.query.search || '';
 

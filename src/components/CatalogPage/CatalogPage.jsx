@@ -231,7 +231,7 @@ function CatalogPage({ onAuthOpen }) {
 
   /* ── Build API params from current filters ── */
   const buildParams = useCallback(() => {
-    const p = { limit: 50 };
+    const p = { limit: 200 };
     if (selectedCondition && selectedCondition !== 'Все') p.condition = selectedCondition;
     if (selectedBrands.length) p.brand = selectedBrands.join(',');
     if (selectedModels.length) p.model = selectedModels.join(',');
