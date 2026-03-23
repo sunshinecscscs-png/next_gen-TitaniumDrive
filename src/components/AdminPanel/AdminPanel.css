@@ -1916,3 +1916,256 @@ select.admin-car-form__input option {
   font-size: 13px;
   color: #888;
 }
+
+/* ═══════════════════════════════════════
+   Admin Reviews
+   ═══════════════════════════════════════ */
+.admin-reviews__list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-reviews__card {
+  background: #1a1c2e;
+  border: 1px solid #23263a;
+  border-radius: 12px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+
+.admin-reviews__card:hover {
+  border-color: #3a3d5c;
+}
+
+.admin-reviews__card--draft {
+  opacity: 0.65;
+}
+
+.admin-reviews__card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.admin-reviews__card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #23263a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-reviews__card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-reviews__card-avatar span {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.admin-reviews__card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.admin-reviews__card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.admin-reviews__card-stars {
+  font-size: 14px;
+  color: #f5a623;
+  letter-spacing: 1px;
+}
+
+.admin-reviews__draft-badge {
+  font-size: 11px;
+  background: #333;
+  color: #aaa;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.admin-reviews__card-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #bbb;
+  margin: 0 0 12px;
+}
+
+.admin-reviews__card-photo {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.admin-reviews__card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Review form modal */
+.admin-reviews__form-modal {
+  background: #1a1c2e;
+  border: 1px solid #23263a;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.admin-reviews__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-reviews__form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.admin-reviews__form-row > * {
+  flex: 1;
+}
+
+.admin-reviews__form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-reviews__form-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #aaa;
+}
+
+.admin-reviews__form-field input[type="text"],
+.admin-reviews__form-field textarea {
+  background: #0f1117;
+  border: 1px solid #23263a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #e0e0e0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-reviews__form-field input[type="text"]:focus,
+.admin-reviews__form-field textarea:focus {
+  border-color: #6c7ae0;
+}
+
+.admin-reviews__form-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.admin-reviews__form-field input[type="file"] {
+  font-size: 13px;
+  color: #aaa;
+}
+
+.admin-reviews__form-field input[type="checkbox"] {
+  accent-color: #6c7ae0;
+}
+
+/* Stars input */
+.admin-reviews__stars-input {
+  display: flex;
+  gap: 4px;
+}
+
+.admin-reviews__star-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #444;
+  transition: color 0.15s, transform 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.admin-reviews__star-btn:hover {
+  transform: scale(1.2);
+}
+
+.admin-reviews__star-btn--active {
+  color: #f5a623;
+}
+
+/* ═══════════════════════════════════════
+   Admin Button Utilities
+   ═══════════════════════════════════════ */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: 1px solid #23263a;
+  border-radius: 8px;
+  background: #1a1c2e;
+  color: #e0e0e0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-btn:hover {
+  background: #23263a;
+  border-color: #3a3d5c;
+}
+
+.admin-btn--primary {
+  background: #6c7ae0;
+  border-color: #6c7ae0;
+  color: #fff;
+}
+
+.admin-btn--primary:hover {
+  background: #5a68d0;
+  border-color: #5a68d0;
+}
+
+.admin-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-btn--danger:hover {
+  background: #e53935;
+  border-color: #e53935;
+  color: #fff;
+}
+
+.admin-btn--sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+

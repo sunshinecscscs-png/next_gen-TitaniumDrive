@@ -6,6 +6,7 @@ import { fetchAdminStats, fetchAdminUsers, changeUserRole, deleteUser, checkHasA
 import { fetchAdminCars, fetchAdminCarById, createCar, updateCar, deleteCar, toggleCarPublish, uploadCarImages } from '../../api/cars.js';
 import { fetchCallbackRequests, fetchCallbackStats, updateCallbackStatus, deleteCallbackRequest, claimCallbackRequest } from '../../api/callbackRequests.js';
 import { fetchChatRooms, fetchRoomMessages, markRoomRead, claimChatRoom } from '../../api/chat.js';
+import { fetchAdminReviews, createReview, updateReview, deleteReview, toggleReviewPublish } from '../../api/reviews.js';
 import './AdminPanel.css';
 
 const TOKEN_KEY = 'autosite_token';
@@ -261,7 +262,7 @@ function defaultCarForm() {
 function AdminDashboard({ admin }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'users' | 'cars' | 'requests'
+  const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'users' | 'cars' | 'requests' | 'chat' | 'reviews'
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [usersMeta, setUsersMeta] = useState({ total: 0, page: 1, pages: 1 });
@@ -315,6 +316,18 @@ function AdminDashboard({ admin }) {
   const chatMsgEndRef = useRef(null);
   const chatTypingTimerRef = useRef(null);
   const audioCtxRef = useRef(null);
+
+  /* Reviews state */
+  const [reviewsList, setReviewsList] = useState([]);
+  const [reviewsMeta, setReviewsMeta] = useState({ total: 0, page: 1, pages: 1 });
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ first_name: '', last_name: '', rating: 5, text: '', is_published: true });
+  const [reviewAvatarFile, setReviewAvatarFile] = useState(null);
+  const [reviewPhotoFile, setReviewPhotoFile] = useState(null);
+  const [reviewFormError, setReviewFormError] = useState('');
+  const [reviewFormLoading, setReviewFormLoading] = useState(false);
 
   /* Notification toasts */
   const [toasts, setToasts] = useState([]);
@@ -955,6 +968,48 @@ function AdminDashboard({ admin }) {
     return g || '—';
   };
 
+  /* ── Reviews ── */
+  const loadReviews = useCallback(async (page = 1) => {
+    setReviewsLoading(true);
+    try {
+      const data = await fetchAdminReviews(page);
+      setReviewsList(data.reviews);
+      setReviewsMeta({ total: data.total, page: data.page, pages: data.pages });
+    } catch { /* ignore */ }
+    finally { setReviewsLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    if (tab === 'reviews') loadReviews(1);
+  }, [tab, loadReviews]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setReviewFormError('');
+    setReviewFormLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('first_name', reviewForm.first_name);
+      fd.append('last_name', reviewForm.last_name);
+      fd.append('rating', String(reviewForm.rating));
+      fd.append('text', reviewForm.text);
+      fd.append('is_published', String(reviewForm.is_published));
+      if (reviewAvatarFile) fd.append('avatar', reviewAvatarFile);
+      if (reviewPhotoFile) fd.append('photo', reviewPhotoFile);
+      if (editingReview) {
+        await updateReview(editingReview.id, fd);
+      } else {
+        await createReview(fd);
+      }
+      setShowReviewForm(false);
+      loadReviews(reviewsMeta.page);
+    } catch (err) {
+      setReviewFormError(err.message);
+    } finally {
+      setReviewFormLoading(false);
+    }
+  };
+
   return (
     <div className="admin-overlay">
       {/* Sidebar */}
@@ -986,6 +1041,10 @@ function AdminDashboard({ admin }) {
               <span className="admin-sidebar__badge">{chatRooms.reduce((s, r) => s + (Number(r.unread_count) || 0), 0)}</span>
             )}
           </button>
+          <button className={`admin-sidebar__item ${tab === 'reviews' ? 'admin-sidebar__item--active' : ''}`} onClick={() => setTab('reviews')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span>Отзывы</span>
+          </button>
         </nav>
         <div className="admin-sidebar__footer">
           <button className="admin-sidebar__exit" onClick={handleLogout}>
@@ -999,7 +1058,7 @@ function AdminDashboard({ admin }) {
       <main className="admin-main">
         <div className="admin-main__header">
           <h1 className="admin-main__title">
-            {tab === 'dashboard' ? 'Дашборд' : tab === 'users' ? 'Пользователи' : tab === 'cars' ? 'Автомобили' : tab === 'chat' ? 'Чаты с клиентами' : 'Заявки на звонок'}
+            {tab === 'dashboard' ? 'Дашборд' : tab === 'users' ? 'Пользователи' : tab === 'cars' ? 'Автомобили' : tab === 'chat' ? 'Чаты с клиентами' : tab === 'reviews' ? 'Отзывы' : 'Заявки на звонок'}
           </h1>
           <div className="admin-main__user">
             {/* Notification bell */}
@@ -1584,6 +1643,110 @@ function AdminDashboard({ admin }) {
                 </>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Reviews tab */}
+        {tab === 'reviews' && (
+          <div className="admin-reviews">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <span style={{ color: '#888', fontSize: 14 }}>Всего: {reviewsMeta.total}</span>
+              <button className="admin-btn admin-btn--primary" onClick={() => { setEditingReview(null); setReviewForm({ first_name: '', last_name: '', rating: 5, text: '', is_published: true }); setReviewAvatarFile(null); setReviewPhotoFile(null); setReviewFormError(''); setShowReviewForm(true); }}>
+                + Добавить отзыв
+              </button>
+            </div>
+
+            {reviewsLoading ? (
+              <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>Загрузка...</div>
+            ) : reviewsList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 40, color: '#888' }}>Отзывов пока нет</div>
+            ) : (
+              <div className="admin-reviews__list">
+                {reviewsList.map((rev) => (
+                  <div key={rev.id} className={`admin-reviews__card ${!rev.is_published ? 'admin-reviews__card--draft' : ''}`}>
+                    <div className="admin-reviews__card-header">
+                      <div className="admin-reviews__card-avatar">
+                        {rev.avatar_url ? <img src={rev.avatar_url} alt="" /> : <span>{(rev.first_name?.[0] || '?').toUpperCase()}</span>}
+                      </div>
+                      <div className="admin-reviews__card-info">
+                        <span className="admin-reviews__card-name">{rev.first_name}{rev.last_name ? ` ${rev.last_name}` : ''}</span>
+                        <span className="admin-reviews__card-stars">{'\u2605'.repeat(rev.rating)}{'\u2606'.repeat(5 - rev.rating)}</span>
+                      </div>
+                      {!rev.is_published && <span className="admin-reviews__draft-badge">Черновик</span>}
+                    </div>
+                    <p className="admin-reviews__card-text">{rev.text}</p>
+                    {rev.photo_url && <img src={rev.photo_url} alt="" className="admin-reviews__card-photo" />}
+                    <div className="admin-reviews__card-actions">
+                      <button className="admin-btn admin-btn--sm" onClick={() => { setEditingReview(rev); setReviewForm({ first_name: rev.first_name, last_name: rev.last_name || '', rating: rev.rating, text: rev.text, is_published: rev.is_published }); setReviewAvatarFile(null); setReviewPhotoFile(null); setReviewFormError(''); setShowReviewForm(true); }}>Редактировать</button>
+                      <button className="admin-btn admin-btn--sm" onClick={async () => { try { await toggleReviewPublish(rev.id); loadReviews(reviewsMeta.page); } catch {} }}>{rev.is_published ? 'Скрыть' : 'Опубликовать'}</button>
+                      <button className="admin-btn admin-btn--sm admin-btn--danger" onClick={async () => { if (!confirm('Удалить отзыв?')) return; try { await deleteReview(rev.id); loadReviews(reviewsMeta.page); } catch {} }}>Удалить</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {reviewsMeta.pages > 1 && (
+              <div className="admin-pagination">
+                {Array.from({ length: reviewsMeta.pages }, (_, i) => (
+                  <button key={i} className={`admin-pagination__btn ${reviewsMeta.page === i + 1 ? 'admin-pagination__btn--active' : ''}`} onClick={() => loadReviews(i + 1)}>{i + 1}</button>
+                ))}
+              </div>
+            )}
+
+            {/* Review form modal */}
+            {showReviewForm && (
+              <div className="admin-modal-overlay" onClick={() => setShowReviewForm(false)}>
+                <div className="admin-reviews__form-modal" onClick={(e) => e.stopPropagation()}>
+                  <button className="admin-user-detail__close" onClick={() => setShowReviewForm(false)}>✕</button>
+                  <h3 style={{ margin: '0 0 20px', fontSize: 18 }}>{editingReview ? 'Редактировать отзыв' : 'Новый отзыв'}</h3>
+                  <form className="admin-reviews__form" onSubmit={handleReviewSubmit}>
+                    <div className="admin-reviews__form-row">
+                      <div className="admin-reviews__form-field">
+                        <label>Имя *</label>
+                        <input type="text" value={reviewForm.first_name} onChange={(e) => setReviewForm(f => ({ ...f, first_name: e.target.value }))} placeholder="Имя" required />
+                      </div>
+                      <div className="admin-reviews__form-field">
+                        <label>Фамилия</label>
+                        <input type="text" value={reviewForm.last_name} onChange={(e) => setReviewForm(f => ({ ...f, last_name: e.target.value }))} placeholder="Необязательно" />
+                      </div>
+                    </div>
+                    <div className="admin-reviews__form-field">
+                      <label>Рейтинг</label>
+                      <div className="admin-reviews__stars-input">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <button type="button" key={s} className={`admin-reviews__star-btn ${s <= reviewForm.rating ? 'admin-reviews__star-btn--active' : ''}`} onClick={() => setReviewForm(f => ({ ...f, rating: s }))}>★</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="admin-reviews__form-field">
+                      <label>Текст отзыва *</label>
+                      <textarea rows="4" value={reviewForm.text} onChange={(e) => setReviewForm(f => ({ ...f, text: e.target.value }))} placeholder="Текст отзыва..." required />
+                    </div>
+                    <div className="admin-reviews__form-field">
+                      <label>Аватарка (опционально)</label>
+                      <input type="file" accept="image/*" onChange={(e) => setReviewAvatarFile(e.target.files[0] || null)} />
+                      {editingReview?.avatar_url && !reviewAvatarFile && <img src={editingReview.avatar_url} alt="" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', marginTop: 6 }} />}
+                    </div>
+                    <div className="admin-reviews__form-field">
+                      <label>Фотография (опционально)</label>
+                      <input type="file" accept="image/*" onChange={(e) => setReviewPhotoFile(e.target.files[0] || null)} />
+                      {editingReview?.photo_url && !reviewPhotoFile && <img src={editingReview.photo_url} alt="" style={{ width: 120, borderRadius: 8, objectFit: 'cover', marginTop: 6 }} />}
+                    </div>
+                    <div className="admin-reviews__form-field">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                        <input type="checkbox" checked={reviewForm.is_published} onChange={(e) => setReviewForm(f => ({ ...f, is_published: e.target.checked }))} />
+                        Опубликовать
+                      </label>
+                    </div>
+                    {reviewFormError && <div style={{ color: '#e53935', fontSize: 13, marginBottom: 8 }}>{reviewFormError}</div>}
+                    <button className="admin-btn admin-btn--primary" type="submit" disabled={reviewFormLoading} style={{ width: '100%' }}>
+                      {reviewFormLoading ? 'Сохранение...' : editingReview ? 'Сохранить' : 'Создать'}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

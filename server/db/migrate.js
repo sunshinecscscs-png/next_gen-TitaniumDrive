@@ -113,6 +113,21 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 );
 
 CREATE INDEX IF NOT EXISTS idx_chat_messages_room ON chat_messages (room_id, created_at);
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id            SERIAL PRIMARY KEY,
+  first_name    VARCHAR(100)  NOT NULL,
+  last_name     VARCHAR(100),
+  avatar_url    TEXT,
+  rating        INTEGER       NOT NULL DEFAULT 5 CHECK (rating >= 1 AND rating <= 5),
+  text          TEXT          NOT NULL,
+  photo_url     TEXT,
+  is_published  BOOLEAN       NOT NULL DEFAULT true,
+  created_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_published ON reviews (is_published);
 `;
 
 /* Add columns to existing table if they don't exist */

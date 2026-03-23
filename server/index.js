@@ -16,6 +16,7 @@ import callbackRequestsRouter from './routes/callback-requests.js';
 import notificationsRouter from './routes/notifications.js';
 import ordersRouter from './routes/orders.js';
 import chatRouter from './routes/chat.js';
+import reviewsRouter from './routes/reviews.js';
 import { sendMail } from './utils/mailer.js';
 import pool from './db/pool.js';
 import { startBot } from './bot/index.js';
@@ -23,7 +24,7 @@ import { startCatalogBot } from './bot/catalog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 /* ── Глобальная защита от крашей процесса ── */
 process.on('unhandledRejection', (reason, promise) => {
@@ -41,6 +42,7 @@ const io = new SocketIO(httpServer, {
   cors: { origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true },
 });
 const PORT = process.env.PORT || 4000;
+const ENABLE_TG_BOTS = process.env.ENABLE_TG_BOTS !== 'false';
 
 /* ── middleware ── */
 app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
@@ -63,6 +65,7 @@ app.use('/api/callback-requests', callbackRequestsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/reviews', reviewsRouter);
 
 /* ── health check ── */
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
@@ -215,7 +218,10 @@ io.on('connection', async (socket) => {
 httpServer.listen(PORT, () => {
   console.log(`🚀  Server running on http://localhost:${PORT}`);
 
-  // Запускаем Telegram ботов
-  startBot();
-  startCatalogBot();
+  if (ENABLE_TG_BOTS) {
+    startBot();
+    startCatalogBot();
+  } else {
+    console.log('ℹ️  Telegram боты отключены (ENABLE_TG_BOTS=false)');
+  }
 });

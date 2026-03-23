@@ -3,6 +3,7 @@ import Hero from '../Hero/Hero';
 import SearchSection from '../SearchSection/SearchSection';
 import HowToBuy from '../HowToBuy/HowToBuy';
 import RecommendedCars from '../RecommendedCars/RecommendedCars';
+import ReviewsCarousel from '../ReviewsCarousel/ReviewsCarousel';
 import CatalogFilter from '../CatalogFilter/CatalogFilter';
 import AboutUs from '../AboutUs/AboutUs';
 import DealershipBanner from '../DealershipBanner/DealershipBanner';
@@ -22,6 +23,9 @@ function HomePage({ onAuthOpen }) {
       </Reveal>
       <Reveal>
         <RecommendedCars onAuthOpen={onAuthOpen} />
+      </Reveal>
+      <Reveal>
+        <ReviewsCarousel />
       </Reveal>
       <Reveal>
         <CatalogFilter />
