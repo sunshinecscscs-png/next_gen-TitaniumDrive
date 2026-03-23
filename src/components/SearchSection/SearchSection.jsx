@@ -55,7 +55,7 @@ function SearchSection() {
     <section className="search-section">
       <div className="search-section__inner">
         <h2 className="search-section__title">
-          Индивидуальный автоподбор
+          Оставить заявку на индивидуальный автоподбор
         </h2>
 
         <form className="search-section__form" onSubmit={handleSubmit}>
