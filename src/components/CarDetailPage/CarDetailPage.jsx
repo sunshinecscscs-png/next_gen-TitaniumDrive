@@ -670,7 +670,7 @@ export default function CarDetailPage({ onAuthOpen }) {
             </div>
             <h3 className="buy-modal__title">Позвоните нам</h3>
             <p className="buy-modal__text">Наш менеджер ответит на все ваши вопросы</p>
-            <a href="tel:+79820780996" className="buy-modal__phone-link">8 (800) 505-51-99</a>
+            <a href="tel:+79682337048" className="buy-modal__phone-link">+7 (968) 233-70-48</a>
           </div>
         </div>
       )}
