@@ -90,7 +90,7 @@ export default function QuizWidget() {
     if (!currentStep) return false;
     if (currentStep.type === 'radio') return !!answers[step];
     if (currentStep.type === 'textarea') return !!(answers[step] && answers[step].trim());
-    if (currentStep.type === 'form') return name.trim() && phone.trim();
+    if (currentStep.type === 'form') return name.trim() && phone.replace(/\D/g, '').length === 11;
     return false;
   };
 
@@ -103,8 +103,18 @@ export default function QuizWidget() {
   };
 
   const handlePhoneChange = (e) => {
-    const filtered = e.target.value.replace(/[^0-9+\-() ]/g, '');
-    setPhone(filtered);
+    const digits = e.target.value.replace(/\D/g, '');
+    // Normalize: treat leading 8 or 7 as country code
+    const d = digits.startsWith('7') || digits.startsWith('8') ? digits.slice(1) : digits;
+    let formatted = '+7';
+    if (d.length > 0) formatted += ' (' + d.slice(0, 3);
+    if (d.length >= 3) formatted += ') ';
+    if (d.length > 3) formatted += d.slice(3, 6);
+    if (d.length >= 6) formatted += '-';
+    if (d.length > 6) formatted += d.slice(6, 8);
+    if (d.length >= 8) formatted += '-';
+    if (d.length > 8) formatted += d.slice(8, 10);
+    setPhone(formatted);
   };
 
   const buildMessage = () => {
