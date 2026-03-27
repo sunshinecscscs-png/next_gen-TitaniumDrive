@@ -785,7 +785,7 @@ function AdminDashboard({ admin }) {
 
     socket.on('admin:new-request', (request) => {
       playNotificationSound();
-      const typeLabels = { simple: 'Обратный звонок', car: 'По автомобилю', question: 'Вопрос', order: 'Заказ' };
+      const typeLabels = { simple: 'Обратный звонок', car: 'По автомобилю', question: 'Вопрос', order: 'Заказ', quiz: 'Подбор авто' };
       addToast({
         type: 'request',
         title: 'Новая заявка',
@@ -930,6 +930,7 @@ function AdminDashboard({ admin }) {
     if (type === 'car') return 'По автомобилю';
     if (type === 'question') return 'Вопрос';
     if (type === 'order') return 'Заказ';
+    if (type === 'quiz') return 'Подбор авто';
     return type;
   };
 
@@ -1382,6 +1383,7 @@ function AdminDashboard({ admin }) {
                 <option value="car">По автомобилю</option>
                 <option value="question">Вопрос</option>
                 <option value="order">Заказ</option>
+                <option value="quiz">Подбор авто</option>
               </select>
               <select className="admin-requests-filter" value={requestsFilterStatus} onChange={(e) => setRequestsFilterStatus(e.target.value)}>
                 <option value="">Все статусы</option>
@@ -1441,8 +1443,13 @@ function AdminDashboard({ admin }) {
                       )}
                       {r.type === 'question' && r.topic && <span title="Тема">📋 {r.topic}</span>}
                       {r.type === 'question' && r.message && <span title="Сообщение" className="admin-request-message">{r.message.length > 50 ? r.message.slice(0, 50) + '...' : r.message}</span>}
+                      {r.type === 'quiz' && r.message && (
+                        <span title="Ответы квиза" className="admin-request-message">
+                          {r.message.length > 60 ? r.message.slice(0, 60) + '...' : r.message}
+                        </span>
+                      )}
                       {r.email && <span title="Email">✉ {r.email}</span>}
-                      {r.type !== 'car' && r.type !== 'order' && r.type !== 'question' && !r.email && '—'}
+                      {r.type !== 'car' && r.type !== 'order' && r.type !== 'question' && r.type !== 'quiz' && !r.email && '—'}
                     </td>
                     <td>
                       {r.claimed_by ? (
@@ -1855,7 +1862,7 @@ function AdminDashboard({ admin }) {
 
             <div className="admin-user-detail__header">
               <div className="admin-user-detail__avatar" style={{ background: viewRequest.status === 'new' ? '#ff6b6b' : viewRequest.status === 'processed' ? '#ffd43b' : '#51cf66', color: '#000' }}>
-                {viewRequest.type === 'car' ? '🚗' : viewRequest.type === 'question' ? '❓' : viewRequest.type === 'order' ? '🛒' : '📞'}
+                {viewRequest.type === 'car' ? '🚗' : viewRequest.type === 'question' ? '❓' : viewRequest.type === 'order' ? '🛒' : viewRequest.type === 'quiz' ? '📋' : '📞'}
               </div>
               <div>
                 <h2 className="admin-user-detail__name">{viewRequest.name}</h2>

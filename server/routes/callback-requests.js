@@ -40,7 +40,7 @@ router.post('/', optionalAuth, async (req, res) => {
       return res.status(400).json({ error: 'Имя и телефон обязательны' });
     }
 
-    const validTypes = ['simple', 'car', 'question', 'order'];
+    const validTypes = ['simple', 'car', 'question', 'order', 'quiz'];
     const safeType = validTypes.includes(type) ? type : 'simple';
     const userId = req.user?.id || null;
 
