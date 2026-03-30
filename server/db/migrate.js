@@ -25,19 +25,19 @@ CREATE TABLE IF NOT EXISTS cars (
   spec          VARCHAR(255),
   price         BIGINT              NOT NULL DEFAULT 0,
   old_price     BIGINT,
-  condition     VARCHAR(50)         DEFAULT 'Новое авто',
+  condition     VARCHAR(255)        DEFAULT 'Новое авто',
   brand         VARCHAR(100),
   model         VARCHAR(100),
   year          INTEGER,
-  body_type     VARCHAR(50),
-  fuel          VARCHAR(50),
-  drive         VARCHAR(50),
-  transmission  VARCHAR(100),
-  engine        VARCHAR(100),
-  power         VARCHAR(100),
-  consumption   VARCHAR(50),
-  acceleration  VARCHAR(50),
-  trunk         VARCHAR(50),
+  body_type     VARCHAR(255),
+  fuel          VARCHAR(255),
+  drive         VARCHAR(255),
+  transmission  VARCHAR(255),
+  engine        VARCHAR(255),
+  power         VARCHAR(255),
+  consumption   VARCHAR(255),
+  acceleration  VARCHAR(255),
+  trunk         VARCHAR(255),
   color_name    VARCHAR(255),
   color_hex     VARCHAR(20)         DEFAULT '#cccccc',
   city          VARCHAR(100),
@@ -252,6 +252,18 @@ BEGIN
     ALTER TABLE chat_messages ALTER COLUMN sender_id DROP NOT NULL;
   EXCEPTION WHEN others THEN NULL;
   END;
+
+  -- Widen VARCHAR columns in cars to avoid "value too long" from parser data
+  ALTER TABLE cars ALTER COLUMN condition TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN body_type TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN fuel TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN drive TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN consumption TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN acceleration TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN trunk TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN transmission TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN engine TYPE VARCHAR(255);
+  ALTER TABLE cars ALTER COLUMN power TYPE VARCHAR(255);
 END $$;
 `;
 
