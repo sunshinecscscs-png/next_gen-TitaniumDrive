@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -27,6 +28,7 @@ function formatTime(dateStr) {
 
 export default function ChatWidget() {
   const { user } = useAuth();
+  const location = useLocation();
 
   /* ── Core chat state ── */
   const [isOpen, setIsOpen] = useState(false);
@@ -146,12 +148,21 @@ export default function ChatWidget() {
   /* ── Proactive invitation bubble ── */
   useEffect(() => {
     if (bubbleClosed) return;
+    if (isOpen) return;
     const t = setTimeout(() => {
       setShowBubble(true);
       playSound();
     }, PROACTIVE_DELAY);
     return () => clearTimeout(t);
-  }, [bubbleClosed, playSound]);
+  }, [bubbleClosed, playSound, isOpen]);
+
+  /* ── Re-ping on page navigation ── */
+  useEffect(() => {
+    if (!isOpen) {
+      setBubbleClosed(false);
+      setShowBubble(false);
+    }
+  }, [location.pathname]);
 
   /* ── Load history + open socket ── */
   useEffect(() => {
