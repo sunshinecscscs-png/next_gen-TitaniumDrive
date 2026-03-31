@@ -295,10 +295,12 @@ export default function ChatWidget() {
             }),
           });
           res = await r.json();
+          if (!r.ok) throw new Error(res.error || 'Ошибка сервера');
         } else {
           res = await sendMyMessage(text);
         }
         const msg = res.message;
+        if (!msg) throw new Error('Нет данных сообщения');
         setRoomId(msg.room_id);
         setMessages(prev => [
           ...prev,

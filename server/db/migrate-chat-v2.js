@@ -17,9 +17,12 @@ async function migrate() {
     ALTER TABLE chat_rooms ADD COLUMN IF NOT EXISTS guest_email TEXT;
     ALTER TABLE chat_rooms ADD COLUMN IF NOT EXISTS rating INT;
     ALTER TABLE chat_rooms ADD COLUMN IF NOT EXISTS rated_at TIMESTAMPTZ;
+    ALTER TABLE chat_rooms ADD COLUMN IF NOT EXISTS guest_city TEXT;
+    ALTER TABLE chat_rooms ADD COLUMN IF NOT EXISTS guest_country TEXT;
+    ALTER TABLE chat_rooms ADD COLUMN IF NOT EXISTS guest_country_code VARCHAR(5);
   `);
 
-  console.log('✅ chat_rooms: added guest_phone, guest_email, rating, rated_at');
+  console.log('✅ chat_rooms: added guest_phone, guest_email, rating, rated_at, guest_city, guest_country, guest_country_code');
   await pool.end();
   process.exit(0);
 }
