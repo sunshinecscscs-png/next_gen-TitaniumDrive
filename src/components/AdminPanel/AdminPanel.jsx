@@ -1650,6 +1650,83 @@ function AdminDashboard({ admin }) {
                 </>
               )}
             </div>
+
+            {/* ── Right sidebar: client info ── */}
+            {chatActiveRoom && (
+              <div className="admin-chat__info-sidebar">
+                <div className="admin-chat__info-avatar">
+                  {(chatActiveRoom.user_name?.[0] || '?').toUpperCase()}
+                </div>
+                <div className="admin-chat__info-name">{chatActiveRoom.user_name || 'Гость'}</div>
+
+                <div className="admin-chat__info-section">
+                  <div className="admin-chat__info-label">Телефон</div>
+                  <div className="admin-chat__info-value">
+                    {chatActiveRoom.guest_phone ? (
+                      <a href={`tel:${chatActiveRoom.guest_phone}`} style={{ color: '#5b9aff', textDecoration: 'none' }}>
+                        📱 {chatActiveRoom.guest_phone}
+                      </a>
+                    ) : (
+                      <span style={{ color: '#555' }}>Не указан</span>
+                    )}
+                  </div>
+                </div>
+
+                {chatActiveRoom.guest_email && (
+                  <div className="admin-chat__info-section">
+                    <div className="admin-chat__info-label">Email</div>
+                    <div className="admin-chat__info-value">
+                      <a href={`mailto:${chatActiveRoom.guest_email}`} style={{ color: '#5b9aff', textDecoration: 'none' }}>
+                        ✉ {chatActiveRoom.guest_email}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                <div className="admin-chat__info-section">
+                  <div className="admin-chat__info-label">Локация</div>
+                  <div className="admin-chat__info-value">
+                    {chatActiveRoom.guest_city || chatActiveRoom.guest_country ? (
+                      <span>
+                        {chatActiveRoom.guest_country_code && (
+                          String.fromCodePoint(...[...chatActiveRoom.guest_country_code.toUpperCase()].map(c => 0x1F1E6 - 65 + c.charCodeAt(0))) + ' '
+                        )}
+                        {[chatActiveRoom.guest_country, chatActiveRoom.guest_city].filter(Boolean).join(', ')}
+                      </span>
+                    ) : (
+                      <span style={{ color: '#555' }}>Не определена</span>
+                    )}
+                  </div>
+                </div>
+
+                {chatActiveRoom.rating > 0 && (
+                  <div className="admin-chat__info-section">
+                    <div className="admin-chat__info-label">Оценка</div>
+                    <div className="admin-chat__info-value" style={{ color: '#FFCA28', fontSize: 16 }}>
+                      {'★'.repeat(chatActiveRoom.rating)}{'☆'.repeat(5 - chatActiveRoom.rating)}
+                    </div>
+                  </div>
+                )}
+
+                <div className="admin-chat__info-section">
+                  <div className="admin-chat__info-label">Создан</div>
+                  <div className="admin-chat__info-value">
+                    {chatActiveRoom.created_at
+                      ? new Date(chatActiveRoom.created_at).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                      : '—'}
+                  </div>
+                </div>
+
+                {chatActiveRoom.claimed_by_name && (
+                  <div className="admin-chat__info-section">
+                    <div className="admin-chat__info-label">Ответственный</div>
+                    <div className="admin-chat__info-value" style={{ color: '#51cf66' }}>
+                      ● {chatActiveRoom.claimed_by_name}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

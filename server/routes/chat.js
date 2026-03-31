@@ -155,15 +155,15 @@ router.post('/guest/send', async (req, res) => {
     const guestId = req.headers['x-guest-id'];
     if (!guestId) return res.status(400).json({ error: 'Нет guest ID' });
 
-    const { text } = req.body;
+    const { text, guestName, guestPhone, guestEmail, guestCity } = req.body;
     if (!text?.trim()) return res.status(400).json({ error: 'Пустое сообщение' });
 
     /* Find or create room */
     let room = (await pool.query('SELECT * FROM chat_rooms WHERE guest_id = $1', [guestId])).rows[0];
     if (!room) {
       room = (await pool.query(
-        'INSERT INTO chat_rooms (guest_id, guest_name) VALUES ($1, $2) RETURNING *',
-        [guestId, 'Гость']
+        'INSERT INTO chat_rooms (guest_id, guest_name, guest_phone, guest_email, guest_city, guest_country, guest_country_code) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        [guestId, guestName || 'Гость', guestPhone || null, guestEmail || null, guestCity || null, req.body.guestCountry || null, req.body.guestCountryCode || null]
       )).rows[0];
     }
 
@@ -189,6 +189,31 @@ router.post('/guest/send', async (req, res) => {
     res.status(201).json({ message: msg });
   } catch (err) {
     console.error('chat/guest/send POST error:', err.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * PATCH /api/chat/guest/contact
+ * Save guest contact info (name, phone, email)
+ */
+router.patch('/guest/contact', async (req, res) => {
+  try {
+    const guestId = req.headers['x-guest-id'];
+    if (!guestId) return res.status(400).json({ error: 'Нет guest ID' });
+
+    const { name, phone, email, city, country, countryCode } = req.body;
+
+    const room = (await pool.query('SELECT id FROM chat_rooms WHERE guest_id = $1', [guestId])).rows[0];
+    if (room) {
+      await pool.query(
+        'UPDATE chat_rooms SET guest_name = COALESCE($1, guest_name), guest_phone = COALESCE($2, guest_phone), guest_email = COALESCE($3, guest_email), guest_city = COALESCE($4, guest_city), guest_country = COALESCE($5, guest_country), guest_country_code = COALESCE($6, guest_country_code) WHERE id = $7',
+        [name || null, phone || null, email || null, city || null, country || null, countryCode || null, room.id]
+      );
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('chat/guest/contact PATCH error:', err.message);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
@@ -383,6 +408,51 @@ router.get('/unread-total', auth, requireAdmin, async (req, res) => {
     res.json({ count: rows[0].count });
   } catch (err) {
     console.error('chat/unread-total error:', err.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/* ════════════════════ RATING endpoints ════════════════════ */
+
+/**
+ * POST /api/chat/my/rate
+ * User rates their own chat
+ */
+router.post('/my/rate', auth, async (req, res) => {
+  try {
+    const { rating } = req.body;
+    if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: 'Неверная оценка' });
+
+    const room = (await pool.query('SELECT id FROM chat_rooms WHERE user_id = $1', [req.user.id])).rows[0];
+    if (!room) return res.status(404).json({ error: 'Чат не найден' });
+
+    await pool.query('UPDATE chat_rooms SET rating = $1, rated_at = NOW() WHERE id = $2', [rating, room.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('chat/my/rate error:', err.message);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+/**
+ * POST /api/chat/guest/rate
+ * Guest rates their own chat
+ */
+router.post('/guest/rate', async (req, res) => {
+  try {
+    const guestId = req.headers['x-guest-id'];
+    if (!guestId) return res.status(400).json({ error: 'Нет guest ID' });
+
+    const { rating } = req.body;
+    if (!rating || rating < 1 || rating > 5) return res.status(400).json({ error: 'Неверная оценка' });
+
+    const room = (await pool.query('SELECT id FROM chat_rooms WHERE guest_id = $1', [guestId])).rows[0];
+    if (!room) return res.status(404).json({ error: 'Чат не найден' });
+
+    await pool.query('UPDATE chat_rooms SET rating = $1, rated_at = NOW() WHERE id = $2', [rating, room.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('chat/guest/rate error:', err.message);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });

@@ -17,6 +17,7 @@ import AdminPanel from './components/AdminPanel/AdminPanel'
 import SuccessPage from './components/SuccessPage/SuccessPage'
 import AuthModal from './components/AuthModal/AuthModal'
 import QuizWidget from './components/QuizWidget/QuizWidget'
+import ChatWidget from './components/ChatWidget/ChatWidget'
 import MobileNav from './components/MobileNav/MobileNav'
 import './App.css'
 
@@ -48,7 +49,8 @@ function App() {
         <Route path="/cabinet/orders" element={<MyOrdersPage onAuthOpen={openAuth} />} />
         <Route path="/success" element={<SuccessPage onAuthOpen={openAuth} />} />
       </Routes>
-      <QuizWidget />
+      {/* <QuizWidget /> */}
+      <ChatWidget />
       <MobileNav onAuthOpen={openAuth} />
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
     </div>

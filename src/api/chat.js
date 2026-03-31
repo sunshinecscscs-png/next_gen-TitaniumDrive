@@ -106,3 +106,40 @@ export async function claimChatRoom(roomId) {
   if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка');
   return res.json();
 }
+
+/* ═══════════ GUEST CONTACTS ═══════════ */
+
+/** Guest: save contact info (name, phone, email, city, country, countryCode) */
+export async function saveGuestContacts(name, phone, email, city, country, countryCode) {
+  const res = await fetch(`${API}/guest/contact`, {
+    method: 'PATCH',
+    headers: guestHeaders(),
+    body: JSON.stringify({ name, phone, email, city, country, countryCode }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка');
+  return res.json();
+}
+
+/* ═══════════ RATING ═══════════ */
+
+/** User: rate own chat */
+export async function rateMyChat(rating) {
+  const res = await fetch(`${API}/my/rate`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ rating }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка');
+  return res.json();
+}
+
+/** Guest: rate own chat */
+export async function rateGuestChat(rating) {
+  const res = await fetch(`${API}/guest/rate`, {
+    method: 'POST',
+    headers: guestHeaders(),
+    body: JSON.stringify({ rating }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Ошибка');
+  return res.json();
+}

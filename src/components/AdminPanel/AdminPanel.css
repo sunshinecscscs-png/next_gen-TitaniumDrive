@@ -1922,6 +1922,61 @@ select.admin-car-form__input option {
   color: #888;
 }
 
+/* ── Chat Info Sidebar (right) ── */
+.admin-chat__info-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: #161822;
+  border-left: 1px solid #23263a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 18px 18px;
+  overflow-y: auto;
+}
+
+.admin-chat__info-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3E7BFA, #5A95FF);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.admin-chat__info-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.admin-chat__info-section {
+  width: 100%;
+  padding: 10px 0;
+  border-top: 1px solid #23263a;
+}
+
+.admin-chat__info-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.admin-chat__info-value {
+  font-size: 14px;
+  color: #ccc;
+  word-break: break-all;
+}
+
 /* ═══════════════════════════════════════
    Admin Reviews
    ═══════════════════════════════════════ */
