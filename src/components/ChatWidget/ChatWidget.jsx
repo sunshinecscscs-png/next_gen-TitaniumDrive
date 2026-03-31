@@ -43,6 +43,7 @@ export default function ChatWidget() {
   /* ── Proactive invitation ── */
   const [showBubble, setShowBubble] = useState(false);
   const [bubbleClosed, setBubbleClosed] = useState(false);
+  const [navCount, setNavCount] = useState(0);
 
   /* ── Pre-chat form ── */
   const [formName, setFormName] = useState('');
@@ -154,13 +155,16 @@ export default function ChatWidget() {
       playSound();
     }, PROACTIVE_DELAY);
     return () => clearTimeout(t);
-  }, [bubbleClosed, playSound, isOpen]);
+  }, [bubbleClosed, playSound, isOpen, navCount]);
 
   /* ── Re-ping on page navigation ── */
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
     if (!isOpen) {
       setBubbleClosed(false);
       setShowBubble(false);
+      setNavCount(c => c + 1);
     }
   }, [location.pathname]);
 
