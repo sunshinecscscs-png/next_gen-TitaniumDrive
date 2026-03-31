@@ -42,8 +42,8 @@ export default function ChatWidget() {
 
   /* ── Proactive invitation ── */
   const [showBubble, setShowBubble] = useState(false);
-  const [bubbleClosed, setBubbleClosed] = useState(false);
-  const [navCount, setNavCount] = useState(0);
+  const hasEngaged = useRef(false);
+  const [pingTrigger, setPingTrigger] = useState(0);
 
   /* ── Pre-chat form ── */
   const [formName, setFormName] = useState('');
@@ -148,24 +148,22 @@ export default function ChatWidget() {
 
   /* ── Proactive invitation bubble ── */
   useEffect(() => {
-    if (bubbleClosed) return;
+    if (hasEngaged.current) return;
     if (isOpen) return;
     const t = setTimeout(() => {
       setShowBubble(true);
       playSound();
     }, PROACTIVE_DELAY);
     return () => clearTimeout(t);
-  }, [bubbleClosed, playSound, isOpen, navCount]);
+  }, [playSound, isOpen, pingTrigger]);
 
-  /* ── Re-ping on page navigation ── */
+  /* ── Re-ping on page navigation (until user opens chat) ── */
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
-    if (!isOpen) {
-      setBubbleClosed(false);
-      setShowBubble(false);
-      setNavCount(c => c + 1);
-    }
+    if (hasEngaged.current) return;
+    setShowBubble(false);
+    setPingTrigger(c => c + 1);
   }, [location.pathname]);
 
   /* ── Load history + open socket ── */
@@ -415,16 +413,16 @@ export default function ChatWidget() {
 
   /* ── Open / Close ── */
   const handleOpen = () => {
+    hasEngaged.current = true;
     setIsOpen(true);
     setShowBubble(false);
-    setBubbleClosed(true);
     setUnread(0);
   };
   const handleClose = () => setIsOpen(false);
   const handleBubbleClose = (e) => {
     e.stopPropagation();
     setShowBubble(false);
-    setBubbleClosed(true);
+    hasEngaged.current = true;
   };
 
   return (
@@ -637,7 +635,7 @@ export default function ChatWidget() {
 
       {/* ── FAB button ── */}
       <button
-        className={`jchat__fab ${isOpen ? 'jchat__fab--hidden' : ''} ${!isOpen && !bubbleClosed ? 'jchat__fab--pulse' : ''}`}
+        className={`jchat__fab ${isOpen ? 'jchat__fab--hidden' : ''} ${!isOpen && !hasEngaged.current ? 'jchat__fab--pulse' : ''}`}
         onClick={handleOpen}
         aria-label="Открыть чат"
       >
