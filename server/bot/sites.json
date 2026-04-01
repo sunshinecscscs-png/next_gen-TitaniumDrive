@@ -50,5 +50,18 @@
     },
     "siteUrl": "https://europeanmileage.by",
     "apiBaseUrl": "http://83.147.247.178:4000"
+  },
+  {
+    "name": "AvtoLegends",
+    "emoji": "🏆",
+    "db": {
+      "host": "188.225.35.49",
+      "port": 5432,
+      "database": "autolegends",
+      "user": "autolegends",
+      "password": "admin123"
+    },
+    "siteUrl": "https://avtolegends.ru",
+    "apiBaseUrl": "http://188.225.35.49:4000"
   }
 ]
