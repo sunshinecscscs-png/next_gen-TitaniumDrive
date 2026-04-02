@@ -217,7 +217,7 @@ router.patch('/:id/claim', auth, requireAdmin, async (req, res) => {
 router.patch('/:id', auth, requireAdmin, async (req, res) => {
   try {
     const { status } = req.body;
-    const validStatuses = ['new', 'processed', 'closed'];
+    const validStatuses = ['new', 'processed', 'closed', 'autoresponder', 'messenger'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Недопустимый статус' });
     }
@@ -236,8 +236,8 @@ router.patch('/:id', auth, requireAdmin, async (req, res) => {
 
     /* ── Create notification for the owner ── */
     if (request.user_id) {
-      const statusLabels = { new: 'Новая', processed: 'В обработке', closed: 'Закрыта' };
-      const orderStatusLabels = { new: 'Новый', processed: 'В обработке', closed: 'Завершён' };
+      const statusLabels = { new: 'Новая', processed: 'В обработке', closed: 'Закрыта', autoresponder: 'Автоответчик', messenger: 'Мессенджер' };
+      const orderStatusLabels = { new: 'Новый', processed: 'В обработке', closed: 'Завершён', autoresponder: 'Автоответчик', messenger: 'Мессенджер' };
       const labels = isOrder ? orderStatusLabels : statusLabels;
 
       let title, message, link;

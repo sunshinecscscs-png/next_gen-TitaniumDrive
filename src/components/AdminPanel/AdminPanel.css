@@ -1062,6 +1062,16 @@ select.admin-car-form__input option {
   color: #51cf66;
 }
 
+.admin-request-status--autoresponder {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+.admin-request-status--messenger {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
 /* ── Status Dropdown (table) ── */
 .admin-status-dropdown-wrap {
   position: relative;
@@ -1135,6 +1145,14 @@ select.admin-car-form__input option {
   background: #51cf66;
 }
 
+.admin-status-dropdown__dot--autoresponder {
+  background: #8b5cf6;
+}
+
+.admin-status-dropdown__dot--messenger {
+  background: #3b82f6;
+}
+
 /* ── Status Select (detail modal) ── */
 .admin-status-select {
   display: flex;
@@ -1182,6 +1200,18 @@ select.admin-car-form__input option {
   border-color: #51cf66;
   background: rgba(81, 207, 102, 0.15);
   color: #51cf66;
+}
+
+.admin-status-select__btn--autoresponder.admin-status-select__btn--active {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+
+.admin-status-select__btn--messenger.admin-status-select__btn--active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
 }
 
 .admin-request-details {

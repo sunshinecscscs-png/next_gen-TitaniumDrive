@@ -938,6 +938,8 @@ function AdminDashboard({ admin }) {
     if (status === 'new') return 'Новая';
     if (status === 'processed') return 'В работе';
     if (status === 'closed') return 'Закрыта';
+    if (status === 'autoresponder') return 'Автоответчик';
+    if (status === 'messenger') return 'Мессенджер';
     return status;
   };
 
@@ -1390,6 +1392,8 @@ function AdminDashboard({ admin }) {
                 <option value="new">Новые</option>
                 <option value="processed">В работе</option>
                 <option value="closed">Закрыты</option>
+                <option value="autoresponder">Автоответчик</option>
+                <option value="messenger">Мессенджер</option>
               </select>
               <select className="admin-requests-filter" value={requestsFilterAdmin} onChange={(e) => setRequestsFilterAdmin(e.target.value)}>
                 <option value="">Все ответственные</option>
@@ -1475,7 +1479,7 @@ function AdminDashboard({ admin }) {
                         </span>
                         {statusDropdownId === r.id && (
                           <div className="admin-status-dropdown">
-                            {['new', 'processed', 'closed'].map((s) => (
+                            {['new', 'processed', 'closed', 'autoresponder', 'messenger'].map((s) => (
                               <button
                                 key={s}
                                 className={`admin-status-dropdown__item admin-status-dropdown__item--${s}${r.status === s ? ' admin-status-dropdown__item--active' : ''}`}
@@ -1486,8 +1490,8 @@ function AdminDashboard({ admin }) {
                               >
                                 <span className={`admin-status-dropdown__dot admin-status-dropdown__dot--${s}`} />
                                 {r.type === 'order'
-                                  ? { new: 'Новый', processed: 'В обработке', closed: 'Завершён' }[s]
-                                  : { new: 'Новая', processed: 'В работе', closed: 'Закрыта' }[s]
+                                  ? { new: 'Новый', processed: 'В обработке', closed: 'Завершён', autoresponder: 'Автоответчик', messenger: 'Мессенджер' }[s]
+                                  : { new: 'Новая', processed: 'В работе', closed: 'Закрыта', autoresponder: 'Автоответчик', messenger: 'Мессенджер' }[s]
                                 }
                                 {r.status === s && ' ✓'}
                               </button>
@@ -2022,11 +2026,11 @@ function AdminDashboard({ admin }) {
 
               <span style={{ color: '#888', fontSize: 13, display: 'block', marginBottom: 10 }}>Сменить статус:</span>
               <div className="admin-status-select">
-                {['new', 'processed', 'closed'].map((s) => {
+                {['new', 'processed', 'closed', 'autoresponder', 'messenger'].map((s) => {
                   const isOrder = viewRequest.type === 'order';
                   const labels = isOrder
-                    ? { new: '🕐 Новый', processed: '⚙️ В обработке', closed: '✅ Завершён' }
-                    : { new: '🔴 Новая', processed: '🟡 В работе', closed: '🟢 Закрыта' };
+                    ? { new: '🕐 Новый', processed: '⚙️ В обработке', closed: '✅ Завершён', autoresponder: '📞 Автоответчик', messenger: '💬 Мессенджер' }
+                    : { new: '🔴 Новая', processed: '🟡 В работе', closed: '🟢 Закрыта', autoresponder: '📞 Автоответчик', messenger: '💬 Мессенджер' };
                   const isActive = viewRequest.status === s;
                   return (
                     <button
