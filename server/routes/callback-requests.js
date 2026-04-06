@@ -216,10 +216,11 @@ router.patch('/:id/claim', auth, requireAdmin, async (req, res) => {
  */
 router.patch('/:id', auth, requireAdmin, async (req, res) => {
   try {
-    const { status } = req.body;
+    const status = req.body?.status;
     const validStatuses = ['new', 'processed', 'closed', 'autoresponder', 'messenger'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: 'Недопустимый статус' });
+      console.error(`PATCH /callback-requests/${req.params.id}: invalid status="${status}", body=`, req.body);
+      return res.status(400).json({ error: `Недопустимый статус: ${status}` });
     }
 
     const { rows } = await pool.query(

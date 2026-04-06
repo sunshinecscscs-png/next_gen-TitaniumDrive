@@ -99,7 +99,8 @@ export async function updateCallbackStatus(id, status) {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error || 'Ошибка обновления статуса');
+    console.error('updateCallbackStatus failed:', { id, status, response: err });
+    throw new Error(err.error || err.message || 'Ошибка обновления статуса');
   }
   return res.json();
 }
