@@ -21,7 +21,7 @@ function Footer() {
               <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M21.547 7h-3.29a.743.743 0 00-.655.392s-1.312 2.416-1.734 3.23C14.734 12.813 14 12.126 14 11.11V7.603A1.104 1.104 0 0012.896 6.5h-2.474a1.982 1.982 0 00-1.75.813s1.255-.204 1.255 1.49c0 .42.022 1.626.04 2.64a.73.73 0 01-1.272.503 21.54 21.54 0 01-2.498-4.543.693.693 0 00-.63-.403H2.66a.742.742 0 00-.677 1.03c1.827 4.203 5.395 8.97 10.036 8.97h1.234a.742.742 0 00.742-.742v-1.135a.743.743 0 01.677-.742c.344-.029.663.18.803.49.577 1.284 1.084 2.13 1.084 2.13a.742.742 0 00.642.37h3.2a.743.743 0 00.666-1.073s-1.166-2.052-1.77-3.177a.741.741 0 01.078-.832C20.903 11.385 22.96 8.67 22.96 8.67A.745.745 0 0021.547 7z"/></svg>
             </a>
           </div>
-          <p className="footer__copy">2026 · ООО «Финтех Авто» · Все права защищены</p>
+          <p className="footer__copy">2026 · ООО «ТОР» · Все права защищены</p>
         </div>
 
         <div className="footer__col">
@@ -39,8 +39,8 @@ function Footer() {
         <div className="footer__col">
           <h4 className="footer__heading">Контакты</h4>
           <a href="tel:+79682337048" className="footer__link">+7 (968) 233-70-48</a>
-          <a href="mailto:contact.finteh.avto@gmail.com" className="footer__link">contact.finteh.avto@gmail.com</a>
-          <p className="footer__address">214032, Смоленская область, г Смоленск, ул Лавочкина, д. 106, помещ. 7</p>
+          <a href="mailto:contact.ooo.tor@gmail.com" className="footer__link">contact.ooo.tor@gmail.com</a>
+          <p className="footer__address">214012, Смоленская область, г. Смоленск, ул. 12 Лет Октября, д. 9б, помещ. 2 ком. 1</p>
         </div>
 
         <button className="footer__scroll-top" onClick={scrollToTop} aria-label="Наверх">
@@ -51,7 +51,7 @@ function Footer() {
       </div>
 
       <div className="footer__bottom">
-        <p className="footer__requisites">ОГРН 1236700012262 &nbsp;·&nbsp; ИНН 6700004379 &nbsp;·&nbsp; КПП 670001001 &nbsp;·&nbsp; ОКПО 96798534 &nbsp;·&nbsp; ОКАТО 66401000000 &nbsp;·&nbsp; ОКТМО 66701000001</p>
+        <p className="footer__requisites">ОГРН 5167746206744 &nbsp;·&nbsp; ИНН 7731331650 &nbsp;·&nbsp; КПП 670001001 &nbsp;·&nbsp; ОКПО 05051864 &nbsp;·&nbsp; ОКАТО 66401000000 &nbsp;·&nbsp; ОКТМО 66701000001</p>
       </div>
     </footer>
   );
