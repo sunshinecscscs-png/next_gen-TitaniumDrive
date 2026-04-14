@@ -63,5 +63,18 @@
     },
     "siteUrl": "https://avtolegends.ru",
     "apiBaseUrl": "http://188.225.35.49:4000"
+  },
+  {
+    "name": "OneTocar",
+    "emoji": "🚐",
+    "db": {
+      "host": "83.147.247.178",
+      "port": 5432,
+      "database": "etcauto_db",
+      "user": "etcauto",
+      "password": "admin123"
+    },
+    "siteUrl": "https://onetocar.ru",
+    "apiBaseUrl": "http://83.147.247.178:4001"
   }
 ]
