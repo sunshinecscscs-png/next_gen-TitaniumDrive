@@ -76,5 +76,18 @@
     },
     "siteUrl": "https://onetocar.ru",
     "apiBaseUrl": "http://83.147.247.178:4001"
+  },
+  {
+    "name": "24PeregonAvto",
+    "emoji": "🚛",
+    "db": {
+      "host": "188.225.35.49",
+      "port": 5432,
+      "database": "peregonauto_uz",
+      "user": "postgres",
+      "password": "admin123"
+    },
+    "siteUrl": "https://24peregonauto.ru",
+    "apiBaseUrl": "http://188.225.35.49:4001"
   }
 ]
