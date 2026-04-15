@@ -89,5 +89,18 @@
     },
     "siteUrl": "https://24peregonauto.ru",
     "apiBaseUrl": "http://188.225.35.49:4001"
+  },
+  {
+    "name": "ArenaTrade24",
+    "emoji": "🏁",
+    "db": {
+      "host": "147.45.103.114",
+      "port": 5432,
+      "database": "peregonauto",
+      "user": "postgres",
+      "password": "ArenaTr4de_Db_2026xQ"
+    },
+    "siteUrl": "https://arenatrade24.ru",
+    "apiBaseUrl": "http://147.45.103.114:4000"
   }
 ]
