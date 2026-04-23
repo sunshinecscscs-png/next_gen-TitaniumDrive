@@ -13,22 +13,15 @@
 
 import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
 import parseMobileDe from '../parser/mobilede.js';
 import { loadSites, getSites, getPool, reloadSites } from './multipool.js';
-import { getTelegramAgent } from './proxy-agent.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// Явный путь к .env — иначе dotenv ищет по cwd, который ≠ server/ при старте через pm2
-dotenv.config({ path: join(__dirname, '../.env') });
+dotenv.config();
 
 /* ── Загружаем конфигурацию сайтов ── */
 loadSites();
 
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN, {
-  telegram: { agent: getTelegramAgent() },
-});
+const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 // Список разрешённых Telegram user ID
 const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_IDS || '')
@@ -637,8 +630,8 @@ export function startBot() {
 
   launchBotWithRetry();
 
-  process.once('SIGINT', () => { try { bot.stop('SIGINT'); } catch {} });
-  process.once('SIGTERM', () => { try { bot.stop('SIGTERM'); } catch {} });
+  process.once('SIGINT', () => bot.stop('SIGINT'));
+  process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
   return bot;
 }
