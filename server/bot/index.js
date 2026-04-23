@@ -13,11 +13,15 @@
 
 import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import parseMobileDe from '../parser/mobilede.js';
 import { loadSites, getSites, getPool, reloadSites } from './multipool.js';
 import { getTelegramAgent } from './proxy-agent.js';
 
-dotenv.config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Явный путь к .env — иначе dotenv ищет по cwd, который ≠ server/ при старте через pm2
+dotenv.config({ path: join(__dirname, '../.env') });
 
 /* ── Загружаем конфигурацию сайтов ── */
 loadSites();
@@ -633,8 +637,8 @@ export function startBot() {
 
   launchBotWithRetry();
 
-  process.once('SIGINT', () => bot.stop('SIGINT'));
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
+  process.once('SIGINT', () => { try { bot.stop('SIGINT'); } catch {} });
+  process.once('SIGTERM', () => { try { bot.stop('SIGTERM'); } catch {} });
 
   return bot;
 }

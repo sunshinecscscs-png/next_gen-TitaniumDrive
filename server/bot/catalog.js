@@ -11,12 +11,14 @@
 
 import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import pool from '../db/pool.js';
 import { getTelegramAgent } from './proxy-agent.js';
 
-dotenv.config();
-
-const telegramAgent = getTelegramAgent();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Явный путь к .env — иначе dotenv ищет по cwd, который ≠ server/ при старте через pm2
+dotenv.config({ path: join(__dirname, '../.env') });
 
 const PAGE_SIZE = 1; // показываем по 1 авто за раз
 const BRANDS_PER_PAGE = 8;
@@ -120,14 +122,14 @@ export function startCatalogBot() {
     return null;
   }
 
-  catalogBot = new Telegraf(token, { telegram: { agent: telegramAgent } });
+  catalogBot = new Telegraf(token, { telegram: { agent: getTelegramAgent() } });
 
-  // Устанавливаем команды для кнопки Menu
+  // Устанавливаем команды для кнопки Menu (не критично — ловим ошибку)
   catalogBot.telegram.setMyCommands([
     { command: 'select_auto', description: '🚙 Перейти к подбору авто' },
     { command: 'call_manager', description: '👩 Связаться с менеджером' },
     { command: 'about_titanium', description: '❓ О компании TitaniumDrive' },
-  ]);
+  ]).catch(err => console.warn('⚠️  setMyCommands failed (не критично):', err.message));
 
   /* ── Типы кузовов (как на сайте) ── */
   const BODY_TYPES = [
