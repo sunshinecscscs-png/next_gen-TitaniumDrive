@@ -102,5 +102,18 @@
     },
     "siteUrl": "https://arenatrade24.ru",
     "apiBaseUrl": "http://147.45.103.114:4000"
+  },
+  {
+    "name": "Berlin24EU",
+    "emoji": "🇩🇪",
+    "db": {
+      "host": "81.200.158.105",
+      "port": 5432,
+      "database": "berlin24db",
+      "user": "berlin24",
+      "password": "admin123"
+    },
+    "siteUrl": "https://berlin24eu.ru",
+    "apiBaseUrl": "http://81.200.158.105:3001"
   }
 ]
