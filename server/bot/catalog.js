@@ -11,9 +11,13 @@
 
 import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
+import https from 'https';
 import pool from '../db/pool.js';
 
 dotenv.config();
+
+// Принудительно IPv4 — на сервере IPv6 недоступен (no route to host)
+const ipv4Agent = new https.Agent({ family: 4 });
 
 const PAGE_SIZE = 1; // показываем по 1 авто за раз
 const BRANDS_PER_PAGE = 8;
@@ -117,7 +121,7 @@ export function startCatalogBot() {
     return null;
   }
 
-  catalogBot = new Telegraf(token);
+  catalogBot = new Telegraf(token, { telegram: { agent: ipv4Agent } });
 
   // Устанавливаем команды для кнопки Menu
   catalogBot.telegram.setMyCommands([

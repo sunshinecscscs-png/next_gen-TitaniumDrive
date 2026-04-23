@@ -13,6 +13,7 @@
 
 import { Telegraf, Markup } from 'telegraf';
 import dotenv from 'dotenv';
+import https from 'https';
 import parseMobileDe from '../parser/mobilede.js';
 import { loadSites, getSites, getPool, reloadSites } from './multipool.js';
 
@@ -21,7 +22,12 @@ dotenv.config();
 /* ── Загружаем конфигурацию сайтов ── */
 loadSites();
 
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+// Принудительно IPv4 — на сервере IPv6 недоступен (no route to host)
+const ipv4Agent = new https.Agent({ family: 4 });
+
+const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN, {
+  telegram: { agent: ipv4Agent },
+});
 
 // Список разрешённых Telegram user ID
 const ADMIN_IDS = (process.env.TELEGRAM_ADMIN_IDS || '')
