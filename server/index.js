@@ -26,6 +26,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+/* ── CORS whitelist: сайт + dev + Capacitor webview ── */
+const ALLOWED_ORIGINS = [
+  'https://titaniumdrive.ru',
+  'https://www.titaniumdrive.ru',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'capacitor://localhost',
+  'https://localhost',
+  'http://localhost',
+];
+
 /* ── Глобальная защита от крашей процесса ── */
 process.on('unhandledRejection', (reason, promise) => {
   console.error('⚠️  Unhandled Rejection:', reason?.message || reason);
@@ -39,13 +50,13 @@ process.on('uncaughtException', (err) => {
 const app = express();
 const httpServer = createServer(app);
 const io = new SocketIO(httpServer, {
-  cors: { origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true },
+  cors: { origin: ALLOWED_ORIGINS, credentials: true },
 });
 const PORT = process.env.PORT || 4000;
 const ENABLE_TG_BOTS = process.env.ENABLE_TG_BOTS !== 'false';
 
 /* ── middleware ── */
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'], credentials: true }));
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
 app.use(express.json({ limit: '50mb' }));
 
 /* ── static uploads ── */
