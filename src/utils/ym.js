@@ -12,3 +12,12 @@ export function reachGoal(name, params) {
     /* metrika unavailable — silently ignore */
   }
 }
+
+export function hit(url, params) {
+  if (typeof window === 'undefined' || typeof window.ym !== 'function') return;
+  try {
+    window.ym(COUNTER_ID, 'hit', url, params || {});
+  } catch {
+    /* metrika unavailable — silently ignore */
+  }
+}

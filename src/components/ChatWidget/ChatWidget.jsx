@@ -7,7 +7,7 @@ import {
   fetchGuestChat, markGuestMessagesRead, getOrCreateGuestId,
   saveGuestContacts, rateMyChat, rateGuestChat,
 } from '../../api/chat';
-import { reachGoal } from '../../utils/ym';
+import { reachGoal, hit } from '../../utils/ym';
 import './ChatWidget.css';
 
 const TOKEN_KEY = 'autosite_token';
@@ -397,6 +397,17 @@ export default function ChatWidget() {
     }).catch(() => {
       saveGuestContacts(name, phone, '', '', '', '').catch(() => {});
     });
+    /* Меняем URL без перезагрузки + сообщаем Метрике о виртуальной странице.
+       Можно создать URL-цель в Метрике на вхождение `lead=chat`. */
+    const referer = window.location.href;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('lead') !== 'chat') {
+      params.set('lead', 'chat');
+      const newUrl = `${window.location.pathname}?${params.toString()}${window.location.hash}`;
+      window.history.replaceState(null, '', newUrl);
+      hit(window.location.href, { referer });
+    }
+    reachGoal('chat_lead_submitted');
     setPhase('chat');
   };
 
