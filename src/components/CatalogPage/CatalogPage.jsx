@@ -6,6 +6,7 @@ import { toggleFavorite, fetchFavoriteIds } from '../../api/favorites';
 import { useAuth } from '../../hooks/useAuth';
 import { mapCar } from '../../utils/mapCar';
 import CallbackModal from '../CallbackModal/CallbackModal';
+import NoResultsModal from '../NoResultsModal/NoResultsModal';
 import { placeOrder } from '../../api/orders';
 import { submitCallbackRequest } from '../../api/callbackRequests';
 import { formatPhone, handlePhoneInput } from '../../utils/phoneFormat';
@@ -174,6 +175,7 @@ function CatalogPage({ onAuthOpen }) {
   const [buyGuestPhone, setBuyGuestPhone] = useState('');
   const [dbCars, setDbCars] = useState([]);
   const [carsLoading, setCarsLoading] = useState(true);
+  const [noResultsOpen, setNoResultsOpen] = useState(false);
   const navigate = useNavigate();
   const [collapsedFilters, setCollapsedFilters] = useState({
     transmission: true, fuel: true, drive: true,
@@ -263,6 +265,40 @@ function CatalogPage({ onAuthOpen }) {
   }, [buildParams]);
 
   const filteredCars = dbCars;
+
+  /* ── Build a human-readable criteria string for the "no results" form ── */
+  const buildCriteriaText = useCallback(() => {
+    const parts = [];
+    if (selectedCondition && selectedCondition !== 'Все') parts.push(`Состояние: ${selectedCondition}`);
+    if (selectedBrands.length) parts.push(`Марка: ${selectedBrands.join(', ')}`);
+    if (selectedModels.length) parts.push(`Модель: ${selectedModels.join(', ')}`);
+    if (selectedBodyTypes.length) parts.push(`Кузов: ${selectedBodyTypes.join(', ')}`);
+    if (selectedTransmissions.length) parts.push(`КПП: ${selectedTransmissions.join(', ')}`);
+    if (selectedFuels.length) parts.push(`Топливо: ${selectedFuels.join(', ')}`);
+    if (selectedDrives.length) parts.push(`Привод: ${selectedDrives.join(', ')}`);
+    if ((priceMin && Number(priceMin) > (facets.priceMin || 0)) || (priceMax && Number(priceMax) < (facets.priceMax || 0))) {
+      parts.push(`Цена: ${fmtPrice(priceMin)} – ${fmtPrice(priceMax)} ₽`);
+    }
+    if (yearMin !== '2010' || yearMax !== '2026') parts.push(`Год: ${yearMin}–${yearMax}`);
+    if (Number(mileageMin) > 0 || Number(mileageMax) < 200000) parts.push(`Пробег: ${fmtPrice(mileageMin)}–${fmtPrice(mileageMax)} км`);
+    if (selectedDiscount && selectedDiscount !== 'Все') parts.push(`Скидка: ${selectedDiscount}`);
+    return parts.join('; ');
+  }, [selectedCondition, selectedBrands, selectedModels, selectedBodyTypes, selectedTransmissions, selectedFuels, selectedDrives, priceMin, priceMax, yearMin, yearMax, mileageMin, mileageMax, selectedDiscount, facets.priceMin, facets.priceMax]);
+
+  /* ── Show "no results" popup when filters yield nothing (debounced) ── */
+  useEffect(() => {
+    if (carsLoading) return;
+    if (filteredCars.length > 0) return;
+    if (!facets.total || facets.total === 0) return; /* DB is empty — don't pester */
+    if (sessionStorage.getItem('noResultsDismissed')) return;
+    const t = setTimeout(() => setNoResultsOpen(true), 800);
+    return () => clearTimeout(t);
+  }, [carsLoading, filteredCars.length, facets.total]);
+
+  const handleNoResultsClose = () => {
+    setNoResultsOpen(false);
+    sessionStorage.setItem('noResultsDismissed', '1');
+  };
 
   const toggleBrand = (brand) => {
     setSelectedBrands(prev =>
@@ -983,6 +1019,13 @@ function CatalogPage({ onAuthOpen }) {
           carName={callbackCar.name}
           carId={callbackCar.id}
           onClose={() => setCallbackCar(null)}
+        />
+      )}
+
+      {noResultsOpen && (
+        <NoResultsModal
+          criteria={buildCriteriaText()}
+          onClose={handleNoResultsClose}
         />
       )}
 

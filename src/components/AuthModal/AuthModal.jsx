@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth.js';
 import { sendVerificationCode, verifyCodeAndRegister } from '../../api/auth.js';
+import { reachGoal } from '../../utils/ym.js';
 import './AuthModal.css';
 
 function AuthModal({ onClose }) {
@@ -100,6 +101,7 @@ function AuthModal({ onClose }) {
     try {
       const { token } = await verifyCodeAndRegister({ email, code: verifyCode });
       localStorage.setItem('autosite_token', token);
+      reachGoal('signup_completed');
       // обновляем контекст через register (он сохранит user)
       // но у нас уже есть token — можно просто перезагрузить
       window.location.reload();

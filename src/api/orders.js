@@ -1,3 +1,5 @@
+import { reachGoal } from '../utils/ym';
+
 const API = '/api/orders';
 const TOKEN_KEY = 'autosite_token';
 
@@ -22,5 +24,7 @@ export async function placeOrder(data) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Ошибка оформления заказа');
   }
-  return res.json();
+  const json = await res.json();
+  reachGoal('order_placed', { car_id: data?.car_id });
+  return json;
 }

@@ -7,6 +7,7 @@ import {
   fetchGuestChat, markGuestMessagesRead, getOrCreateGuestId,
   saveGuestContacts, rateMyChat, rateGuestChat,
 } from '../../api/chat';
+import { reachGoal } from '../../utils/ym';
 import './ChatWidget.css';
 
 const TOKEN_KEY = 'autosite_token';
@@ -320,6 +321,7 @@ export default function ChatWidget() {
           { id: msg.id, from: 'user', text: msg.text, time: formatTime(msg.created_at) },
         ]);
         socketRef.current.emit('chat:join', { roomId: msg.room_id });
+        reachGoal('chat_message_sent');
       } catch (err) {
         console.error('Send error:', err);
       }
@@ -327,6 +329,7 @@ export default function ChatWidget() {
     }
 
     socketRef.current.emit('chat:send', { roomId, text });
+    reachGoal('chat_message_sent');
   }, [roomId, user]);
 
   /* ── Form handlers ── */

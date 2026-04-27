@@ -1,3 +1,5 @@
+import { reachGoal } from '../utils/ym';
+
 const API = '/api/callback-requests';
 const TOKEN_KEY = 'autosite_token';
 
@@ -27,7 +29,15 @@ export async function submitCallbackRequest(data) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Ошибка при отправке заявки');
   }
-  return res.json();
+  const json = await res.json();
+  if (data?.type === 'quiz') {
+    reachGoal('quiz_completed');
+  } else if (data?.type === 'search_no_match') {
+    reachGoal('search_no_match_request');
+  } else {
+    reachGoal('callback_request', { source: data?.type || 'simple' });
+  }
+  return json;
 }
 
 /**
