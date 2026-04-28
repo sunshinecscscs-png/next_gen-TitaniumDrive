@@ -806,6 +806,21 @@
   transform: translateY(-2px);
 }
 
+.car-detail__sidebar-social--max {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.car-detail__sidebar-social--max img {
+  width: 36px;
+  height: 36px;
+  max-width: none;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
 /* ===== Similar offers ===== */
 .car-detail__similar {
   max-width: 1320px;

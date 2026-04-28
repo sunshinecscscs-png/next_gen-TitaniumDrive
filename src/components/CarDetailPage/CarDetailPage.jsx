@@ -575,6 +575,9 @@ export default function CarDetailPage({ onAuthOpen }) {
                   <a href="https://vk.com/juliaimport" target="_blank" rel="noopener noreferrer" className="car-detail__sidebar-social" aria-label="VK">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M21.547 7h-3.29a.743.743 0 00-.655.392s-1.312 2.416-1.734 3.23C14.734 12.813 14 12.126 14 11.11V7.603A1.104 1.104 0 0012.896 6.5h-2.474a1.982 1.982 0 00-1.75.813s1.255-.204 1.255 1.49c0 .42.022 1.626.04 2.64a.73.73 0 01-1.272.503 21.54 21.54 0 01-2.498-4.543.693.693 0 00-.63-.403H2.66a.742.742 0 00-.677 1.03c1.827 4.203 5.395 8.97 10.036 8.97h1.234a.742.742 0 00.742-.742v-1.135a.743.743 0 01.677-.742c.344-.029.663.18.803.49.577 1.284 1.084 2.13 1.084 2.13a.742.742 0 00.642.37h3.2a.743.743 0 00.666-1.073s-1.166-2.052-1.77-3.177a.741.741 0 01.078-.832C20.903 11.385 22.96 8.67 22.96 8.67A.745.745 0 0021.547 7z"/></svg>
                   </a>
+                  <a href="https://max.ru/u/f9LHodD0cOLnHLfdFye_Ww3XqqYbzr7mxawADNuEUQr2TpDUzN1K1dusnkc" target="_blank" rel="noopener noreferrer" className="car-detail__sidebar-social car-detail__sidebar-social--max" aria-label="MAX">
+                    <img src="/icons/max.webp" alt="MAX" width="36" height="36" />
+                  </a>
                 </div>
               </div>
             </div>

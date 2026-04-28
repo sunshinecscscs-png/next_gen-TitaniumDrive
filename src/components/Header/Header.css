@@ -506,6 +506,21 @@
   color: #111;
 }
 
+.header__social-link--max {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+}
+
+.header__social-link--max img {
+  width: 38px;
+  height: 38px;
+  max-width: none;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .header {
