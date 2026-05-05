@@ -103,6 +103,30 @@ router.get('/my', auth, async (req, res) => {
 /* ────────────────────── ADMIN ────────────────────── */
 
 /**
+ * CTE that limits noisy duplicate submissions:
+ *   - type='car': только первая заявка для (phone, car_id)
+ *   - type='simple' (обратный звонок): максимум 3 на телефон
+ * Phone сравнивается без форматирования (regexp_replace).
+ */
+const VISIBLE_CTE = `
+  WITH ranked AS (
+    SELECT id, type, car_id,
+      ROW_NUMBER() OVER (
+        PARTITION BY regexp_replace(phone, '[^0-9]', '', 'g'), car_id, type
+        ORDER BY created_at
+      ) AS rn
+    FROM callback_requests
+  ),
+  visible AS (
+    SELECT id FROM ranked
+    WHERE NOT (
+      (type = 'car' AND car_id IS NOT NULL AND rn > 1)
+      OR (type = 'simple' AND rn > 3)
+    )
+  )
+`;
+
+/**
  * GET /api/callback-requests
  * List all requests with pagination + optional filters
  * Query: page, limit, type, status, search
@@ -114,7 +138,7 @@ router.get('/', auth, requireAdmin, async (req, res) => {
     const offset = (page - 1) * limit;
     const { type, status, search } = req.query;
 
-    const conditions = [];
+    const conditions = ['cr.id IN (SELECT id FROM visible)'];
     const params = [];
     let idx = 1;
 
@@ -140,16 +164,18 @@ router.get('/', auth, requireAdmin, async (req, res) => {
       params.push(req.query.source);
     }
 
-    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    const where = 'WHERE ' + conditions.join(' AND ');
 
     const countResult = await pool.query(
-      `SELECT COUNT(*) AS count FROM callback_requests cr ${where}`,
+      `${VISIBLE_CTE}
+       SELECT COUNT(*) AS count FROM callback_requests cr ${where}`,
       params
     );
     const total = parseInt(countResult.rows[0].count);
 
     const { rows } = await pool.query(
-      `SELECT cr.*, c.name AS linked_car_name, c.brand AS linked_car_brand,
+      `${VISIBLE_CTE}
+       SELECT cr.*, c.name AS linked_car_name, c.brand AS linked_car_brand,
               COALESCE(cu.nickname, cu.name) AS claimed_by_name, cu.email AS claimed_by_email
        FROM callback_requests cr
        LEFT JOIN cars c ON c.id = cr.car_id
@@ -179,20 +205,22 @@ router.get('/', auth, requireAdmin, async (req, res) => {
  */
 router.get('/stats', auth, requireAdmin, async (req, res) => {
   try {
-    const where = req.query.source ? 'WHERE source = $1' : '';
+    const sourceFilter = req.query.source ? 'AND cr.source = $1' : '';
     const params = req.query.source ? [req.query.source] : [];
     const { rows } = await pool.query(`
+      ${VISIBLE_CTE}
       SELECT
         COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE status = 'new')::int AS new_count,
-        COUNT(*) FILTER (WHERE status = 'processed')::int AS processed_count,
-        COUNT(*) FILTER (WHERE status = 'closed')::int AS closed_count,
-        COUNT(*) FILTER (WHERE type = 'simple')::int AS simple_count,
-        COUNT(*) FILTER (WHERE type = 'car')::int AS car_count,
-        COUNT(*) FILTER (WHERE type = 'question')::int AS question_count,
-        COUNT(*) FILTER (WHERE source = 'mobile')::int AS mobile_count,
-        COUNT(*) FILTER (WHERE source = 'web')::int AS web_count
-      FROM callback_requests ${where}
+        COUNT(*) FILTER (WHERE cr.status = 'new')::int AS new_count,
+        COUNT(*) FILTER (WHERE cr.status = 'processed')::int AS processed_count,
+        COUNT(*) FILTER (WHERE cr.status = 'closed')::int AS closed_count,
+        COUNT(*) FILTER (WHERE cr.type = 'simple')::int AS simple_count,
+        COUNT(*) FILTER (WHERE cr.type = 'car')::int AS car_count,
+        COUNT(*) FILTER (WHERE cr.type = 'question')::int AS question_count,
+        COUNT(*) FILTER (WHERE cr.source = 'mobile')::int AS mobile_count,
+        COUNT(*) FILTER (WHERE cr.source = 'web')::int AS web_count
+      FROM callback_requests cr
+      WHERE cr.id IN (SELECT id FROM visible) ${sourceFilter}
     `, params);
     res.json(rows[0]);
   } catch (err) {
