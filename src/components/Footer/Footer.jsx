@@ -24,6 +24,17 @@ function Footer() {
               <img src="/icons/max.webp" alt="MAX" width="26" height="26" />
             </a>
           </div>
+
+          <a
+            href="https://www.rustore.ru/catalog/app/com.titaniumdrive.app?rsm=1&mt_link_id=l394r2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer__rustore"
+            aria-label="Скачайте из RuStore"
+          >
+            <img src="/icons/rustore-button.svg" alt="Скачайте из RuStore" width="188" height="63" />
+          </a>
+
           <p className="footer__copy">2026 · ООО «Амв-Инвест» · Все права защищены</p>
         </div>
 
