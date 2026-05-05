@@ -44,11 +44,18 @@ router.post('/', optionalAuth, async (req, res) => {
     const safeType = validTypes.includes(type) ? type : 'simple';
     const userId = req.user?.id || null;
 
+    /* Detect source: Capacitor webview origins or UA → mobile, else web */
+    const origin = req.headers.origin || '';
+    const ua = req.headers['user-agent'] || '';
+    const mobileOrigins = ['capacitor://localhost', 'https://localhost', 'http://localhost'];
+    const isMobile = mobileOrigins.includes(origin) || /Capacitor/i.test(ua);
+    const source = isMobile ? 'mobile' : 'web';
+
     const { rows } = await pool.query(
-      `INSERT INTO callback_requests (type, name, phone, email, car_id, car_name, topic, order_number, message, user_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO callback_requests (type, name, phone, email, car_id, car_name, topic, order_number, message, user_id, source)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [safeType, name.trim(), phone.trim(), email?.trim() || null, car_id || null, car_name?.trim() || null, topic?.trim() || null, order_number?.trim() || null, message?.trim() || null, userId]
+      [safeType, name.trim(), phone.trim(), email?.trim() || null, car_id || null, car_name?.trim() || null, topic?.trim() || null, order_number?.trim() || null, message?.trim() || null, userId, source]
     );
 
     /* Notify admins via socket */
@@ -128,6 +135,10 @@ router.get('/', auth, requireAdmin, async (req, res) => {
       conditions.push(`cr.claimed_by = $${idx++}`);
       params.push(Number(req.query.claimed_by));
     }
+    if (req.query.source) {
+      conditions.push(`cr.source = $${idx++}`);
+      params.push(req.query.source);
+    }
 
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
 
@@ -166,8 +177,10 @@ router.get('/', auth, requireAdmin, async (req, res) => {
  * GET /api/callback-requests/stats
  * Quick counts for dashboard
  */
-router.get('/stats', auth, requireAdmin, async (_req, res) => {
+router.get('/stats', auth, requireAdmin, async (req, res) => {
   try {
+    const where = req.query.source ? 'WHERE source = $1' : '';
+    const params = req.query.source ? [req.query.source] : [];
     const { rows } = await pool.query(`
       SELECT
         COUNT(*)::int AS total,
@@ -176,9 +189,11 @@ router.get('/stats', auth, requireAdmin, async (_req, res) => {
         COUNT(*) FILTER (WHERE status = 'closed')::int AS closed_count,
         COUNT(*) FILTER (WHERE type = 'simple')::int AS simple_count,
         COUNT(*) FILTER (WHERE type = 'car')::int AS car_count,
-        COUNT(*) FILTER (WHERE type = 'question')::int AS question_count
-      FROM callback_requests
-    `);
+        COUNT(*) FILTER (WHERE type = 'question')::int AS question_count,
+        COUNT(*) FILTER (WHERE source = 'mobile')::int AS mobile_count,
+        COUNT(*) FILTER (WHERE source = 'web')::int AS web_count
+      FROM callback_requests ${where}
+    `, params);
     res.json(rows[0]);
   } catch (err) {
     console.error('callback-requests/stats error:', err.message);

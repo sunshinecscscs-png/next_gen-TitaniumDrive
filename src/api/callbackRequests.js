@@ -75,6 +75,7 @@ export async function fetchCallbackRequests(params = {}) {
   if (params.status) qs.set('status', params.status);
   if (params.search) qs.set('search', params.search);
   if (params.claimed_by) qs.set('claimed_by', params.claimed_by);
+  if (params.source) qs.set('source', params.source);
 
   const res = await fetch(`${API}?${qs}`, { headers: authHeaders() });
   if (!res.ok) {
@@ -86,9 +87,13 @@ export async function fetchCallbackRequests(params = {}) {
 
 /**
  * Fetch quick stats for dashboard
+ * @param {{ source?: 'web' | 'mobile' }} params
  */
-export async function fetchCallbackStats() {
-  const res = await fetch(`${API}/stats`, { headers: authHeaders() });
+export async function fetchCallbackStats(params = {}) {
+  const qs = new URLSearchParams();
+  if (params.source) qs.set('source', params.source);
+  const url = qs.toString() ? `${API}/stats?${qs}` : `${API}/stats`;
+  const res = await fetch(url, { headers: authHeaders() });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Ошибка загрузки статистики');

@@ -73,11 +73,13 @@ CREATE TABLE IF NOT EXISTS callback_requests (
   order_number VARCHAR(100),
   message    TEXT,
   status     VARCHAR(20) NOT NULL DEFAULT 'new',
+  source     VARCHAR(10) NOT NULL DEFAULT 'web',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_callback_requests_status ON callback_requests (status);
 CREATE INDEX IF NOT EXISTS idx_callback_requests_type ON callback_requests (type);
+CREATE INDEX IF NOT EXISTS idx_callback_requests_source ON callback_requests (source);
 
 CREATE TABLE IF NOT EXISTS notifications (
   id         SERIAL PRIMARY KEY,
@@ -163,6 +165,10 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='callback_requests' AND column_name='claimed_at') THEN
     ALTER TABLE callback_requests ADD COLUMN claimed_at TIMESTAMPTZ;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='callback_requests' AND column_name='source') THEN
+    ALTER TABLE callback_requests ADD COLUMN source VARCHAR(10) NOT NULL DEFAULT 'web';
+    CREATE INDEX IF NOT EXISTS idx_callback_requests_source ON callback_requests (source);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='chat_rooms' AND column_name='claimed_by') THEN
     ALTER TABLE chat_rooms ADD COLUMN claimed_by INTEGER REFERENCES users(id) ON DELETE SET NULL;

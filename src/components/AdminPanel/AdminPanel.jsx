@@ -262,7 +262,7 @@ function defaultCarForm() {
 function AdminDashboard({ admin }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'users' | 'cars' | 'requests' | 'chat' | 'reviews'
+  const [tab, setTab] = useState('dashboard'); // 'dashboard' | 'users' | 'cars' | 'requests' | 'mobile' | 'chat' | 'reviews'
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [usersMeta, setUsersMeta] = useState({ total: 0, page: 1, pages: 1 });
@@ -684,6 +684,7 @@ function AdminDashboard({ admin }) {
   const loadRequests = useCallback(async (page = 1) => {
     setRequestsLoading(true);
     try {
+      const source = tab === 'mobile' ? 'mobile' : tab === 'requests' ? 'web' : undefined;
       const data = await fetchCallbackRequests({
         page,
         limit: 20,
@@ -691,17 +692,19 @@ function AdminDashboard({ admin }) {
         status: requestsFilterStatus || undefined,
         search: requestsSearchDebounced || undefined,
         claimed_by: requestsFilterAdmin || undefined,
+        source,
       });
       setRequests(data.requests);
       setRequestsMeta({ total: data.total, page: data.page, pages: data.pages });
     } catch { /* ignore */ }
     finally { setRequestsLoading(false); }
-  }, [requestsSearchDebounced, requestsFilterType, requestsFilterStatus, requestsFilterAdmin]);
+  }, [tab, requestsSearchDebounced, requestsFilterType, requestsFilterStatus, requestsFilterAdmin]);
 
   useEffect(() => {
-    if (tab === 'requests') {
+    if (tab === 'requests' || tab === 'mobile') {
       loadRequests(1);
-      fetchCallbackStats().then(setRequestsStats).catch(() => {});
+      const source = tab === 'mobile' ? 'mobile' : 'web';
+      fetchCallbackStats({ source }).then(setRequestsStats).catch(() => {});
     }
   }, [tab, loadRequests]);
 
@@ -726,9 +729,11 @@ function AdminDashboard({ admin }) {
   const loadRequestsRef = useRef(loadRequests);
   const loadChatRoomsRef = useRef(loadChatRooms);
   const requestsMetaRef = useRef(requestsMeta);
+  const tabRef = useRef(tab);
   useEffect(() => { loadRequestsRef.current = loadRequests; }, [loadRequests]);
   useEffect(() => { loadChatRoomsRef.current = loadChatRooms; }, [loadChatRooms]);
   useEffect(() => { requestsMetaRef.current = requestsMeta; }, [requestsMeta]);
+  useEffect(() => { tabRef.current = tab; }, [tab]);
 
   /* ── Chat: Socket.IO for admin (always-on) ── */
   useEffect(() => {
@@ -788,13 +793,17 @@ function AdminDashboard({ admin }) {
       const typeLabels = { simple: 'Обратный звонок', car: 'По автомобилю', question: 'Вопрос', order: 'Заказ', quiz: 'Подбор авто' };
       addToast({
         type: 'request',
-        title: 'Новая заявка',
+        title: request.source === 'mobile' ? 'Новая заявка из приложения' : 'Новая заявка',
         message: `${typeLabels[request.type] || request.type} от ${request.name}`,
         phone: request.phone,
+        source: request.source,
       });
       // Refresh requests if on that tab
       loadRequestsRef.current(requestsMetaRef.current.page);
-      fetchCallbackStats().then(setRequestsStats).catch(() => {});
+      const t = tabRef.current;
+      if (t === 'requests' || t === 'mobile') {
+        fetchCallbackStats({ source: t === 'mobile' ? 'mobile' : 'web' }).then(setRequestsStats).catch(() => {});
+      }
     });
 
     socket.on('chat:typing', ({ userId, roomId }) => {
@@ -908,7 +917,7 @@ function AdminDashboard({ admin }) {
       const room = chatRooms.find(r => r.id === toast.roomId);
       if (room) handleSelectChatRoom(room);
     } else if (toast.type === 'request') {
-      setTab('requests');
+      setTab(toast.source === 'mobile' ? 'mobile' : 'requests');
     }
     removeToast(toast.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1037,6 +1046,10 @@ function AdminDashboard({ admin }) {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
             <span>Заявки</span>
           </button>
+          <button className={`admin-sidebar__item ${tab === 'mobile' ? 'admin-sidebar__item--active' : ''}`} onClick={() => setTab('mobile')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>Мобайл</span>
+          </button>
           <button className={`admin-sidebar__item ${tab === 'chat' ? 'admin-sidebar__item--active' : ''}`} onClick={() => setTab('chat')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
             <span>Чаты</span>
@@ -1061,7 +1074,7 @@ function AdminDashboard({ admin }) {
       <main className="admin-main">
         <div className="admin-main__header">
           <h1 className="admin-main__title">
-            {tab === 'dashboard' ? 'Дашборд' : tab === 'users' ? 'Пользователи' : tab === 'cars' ? 'Автомобили' : tab === 'chat' ? 'Чаты с клиентами' : tab === 'reviews' ? 'Отзывы' : 'Заявки на звонок'}
+            {tab === 'dashboard' ? 'Дашборд' : tab === 'users' ? 'Пользователи' : tab === 'cars' ? 'Автомобили' : tab === 'chat' ? 'Чаты с клиентами' : tab === 'reviews' ? 'Отзывы' : tab === 'mobile' ? 'Заявки из мобильного приложения' : 'Заявки на звонок'}
           </h1>
           <div className="admin-main__user">
             {/* Notification bell */}
@@ -1340,7 +1353,7 @@ function AdminDashboard({ admin }) {
         )}
 
         {/* Requests tab */}
-        {tab === 'requests' && (
+        {(tab === 'requests' || tab === 'mobile') && (
           <div className="admin-table-wrap">
             {/* Stats mini-cards */}
             {requestsStats && (
@@ -1959,6 +1972,10 @@ function AdminDashboard({ admin }) {
               <div className="admin-user-detail__field">
                 <span className="admin-user-detail__label">Тип</span>
                 <span className="admin-user-detail__value">{typeLabel(viewRequest.type)}</span>
+              </div>
+              <div className="admin-user-detail__field">
+                <span className="admin-user-detail__label">Источник</span>
+                <span className="admin-user-detail__value">{viewRequest.source === 'mobile' ? '📱 Мобильное приложение' : '🌐 Сайт'}</span>
               </div>
               <div className="admin-user-detail__field">
                 <span className="admin-user-detail__label">Телефон</span>
